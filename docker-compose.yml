@@ -1,11 +1,9 @@
-version: '3.8'
-
 services:
   sudoku-app:
     build: .
     ports:
-      - "3000:3000"
+      - "80:80"
     environment:
       - NODE_ENV=production
-      - PORT=3000
+      - PORT=80
     restart: unless-stopped
