@@ -243,6 +243,7 @@ h1 {
 
 .mobile-input[type=number] {
     -moz-appearance: textfield;
+    appearance: textfield;
 }
 
 @media (max-width: 768px) {

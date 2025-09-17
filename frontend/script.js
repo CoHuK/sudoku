@@ -183,14 +183,25 @@ class SudokuClient {
             return;
         }
         
+        // If the same number is already in this cell, just show success (no change needed)
+        if (this.board[row][col] === num) {
+            this.updateCell(row, col, num, 'success');
+            this.showFeedback('Number confirmed!', 'success');
+            return;
+        }
+        
         try {
+            // Create a copy of the board with the current cell cleared for validation
+            const boardForValidation = this.board.map(r => [...r]);
+            boardForValidation[row][col] = 0; // Clear the cell temporarily for validation
+            
             const response = await fetch(`${this.basePath}/api/validate-move`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    board: this.board,
+                    board: boardForValidation,
                     row: row,
                     col: col,
                     num: num
