@@ -31,12 +31,18 @@ class SudokuClient {
         
         document.addEventListener('keydown', (e) => this.handleKeydown(e));
         
+        // Cleanup mobile input on page unload
+        window.addEventListener('beforeunload', () => this.removeMobileInput());
+        
         this.newGame();
     }
     
     async newGame() {
         try {
             this.showFeedback('Loading new game...', 'info');
+            
+            // Clean up any existing mobile input
+            this.removeMobileInput();
             
             const response = await fetch(`${this.basePath}/api/new-game`);
             const data = await response.json();
@@ -90,6 +96,72 @@ class SudokuClient {
         cell.classList.add('selected');
         
         this.selectedCell = { row, col };
+        
+        // Show mobile keyboard input
+        this.showMobileInput(cell, row, col);
+    }
+    
+    showMobileInput(cell, row, col) {
+        // Check if device is mobile/touch-enabled
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) 
+                          || window.innerWidth < 768 
+                          || 'ontouchstart' in window;
+        
+        if (!isMobile) return;
+        
+        // Remove any existing mobile input
+        this.removeMobileInput();
+        
+        // Create mobile input element
+        const input = document.createElement('input');
+        input.type = 'number';
+        input.inputMode = 'numeric';
+        input.pattern = '[1-9]';
+        input.min = '1';
+        input.max = '9';
+        input.className = 'mobile-input';
+        input.value = this.board[row][col] || '';
+        
+        // Position the input over the cell
+        const cellRect = cell.getBoundingClientRect();
+        input.style.position = 'fixed';
+        input.style.left = cellRect.left + 'px';
+        input.style.top = cellRect.top + 'px';
+        input.style.width = cellRect.width + 'px';
+        input.style.height = cellRect.height + 'px';
+        input.style.zIndex = '1000';
+        input.style.opacity = '0';
+        input.style.pointerEvents = 'none';
+        
+        // Add input event listeners
+        input.addEventListener('input', (e) => {
+            const num = parseInt(e.target.value);
+            if (num >= 1 && num <= 9) {
+                this.makeMove(row, col, num);
+                this.removeMobileInput();
+            } else if (e.target.value === '') {
+                this.clearCell(row, col);
+                this.removeMobileInput();
+            }
+        });
+        
+        input.addEventListener('blur', () => {
+            this.removeMobileInput();
+        });
+        
+        // Add to DOM and focus
+        document.body.appendChild(input);
+        input.focus();
+        
+        // Store reference for cleanup
+        this.mobileInput = input;
+    }
+    
+    removeMobileInput() {
+        if (this.mobileInput) {
+            this.mobileInput.remove();
+            this.mobileInput = null;
+        }
     }
     
     async handleKeydown(e) {

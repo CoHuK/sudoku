@@ -217,6 +217,34 @@ h1 {
     line-height: 1.5;
 }
 
+/* Mobile input styling */
+.mobile-input {
+    font-size: 20px;
+    font-weight: bold;
+    text-align: center;
+    border: 2px solid #2196F3;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.mobile-input:focus {
+    outline: none;
+    border-color: #1976D2;
+    box-shadow: 0 0 10px rgba(33, 150, 243, 0.5);
+}
+
+/* Hide number input spinners on mobile */
+.mobile-input::-webkit-outer-spin-button,
+.mobile-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.mobile-input[type=number] {
+    -moz-appearance: textfield;
+}
+
 @media (max-width: 768px) {
     .container {
         padding: 20px;
