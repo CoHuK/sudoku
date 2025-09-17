@@ -10,9 +10,25 @@
     <div class="container">
         <h1>Sudoku Game</h1>
         
+        <div class="difficulty-controls">
+            <div class="difficulty-switch">
+                <label class="switch-label">
+                    <input type="radio" name="difficulty" value="easy" id="easy-mode" checked>
+                    <span>Easy Mode</span>
+                    <small>Instant validation</small>
+                </label>
+                <label class="switch-label">
+                    <input type="radio" name="difficulty" value="normal" id="normal-mode">
+                    <span>Normal Mode</span>
+                    <small>Manual validation</small>
+                </label>
+            </div>
+        </div>
+        
         <div class="game-controls">
             <button id="new-game-btn" class="btn">New Game</button>
             <button id="hint-btn" class="btn">Get Hint</button>
+            <button id="validate-btn" class="btn validate-btn" style="display: none;">Validate</button>
         </div>
         
         <div class="feedback" id="feedback"></div>
@@ -27,7 +43,7 @@
                 <li>Fill each cell with numbers 1-9</li>
                 <li>Each row, column, and 3x3 box must contain all numbers 1-9</li>
                 <li>Click on a cell and enter a number</li>
-                <li>Server validation provides immediate feedback</li>
+                <li id="validation-instruction">Server validation provides immediate feedback</li>
             </ul>
         </div>
     </div>

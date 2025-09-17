@@ -4,10 +4,15 @@ class SudokuClient {
         this.feedback = document.getElementById('feedback');
         this.newGameBtn = document.getElementById('new-game-btn');
         this.hintBtn = document.getElementById('hint-btn');
+        this.validateBtn = document.getElementById('validate-btn');
+        this.easyModeRadio = document.getElementById('easy-mode');
+        this.normalModeRadio = document.getElementById('normal-mode');
+        this.validationInstruction = document.getElementById('validation-instruction');
         
         this.board = [];
         this.originalBoard = [];
         this.selectedCell = null;
+        this.isEasyMode = true; // Default to easy mode
         
         // Handle base path for subdirectory deployment
         this.basePath = window.location.pathname.replace(/\/$/, '') || '';
@@ -28,13 +33,35 @@ class SudokuClient {
     init() {
         this.newGameBtn.addEventListener('click', () => this.newGame());
         this.hintBtn.addEventListener('click', () => this.getHint());
+        this.validateBtn.addEventListener('click', () => this.validateBoard());
+        
+        // Difficulty mode listeners
+        this.easyModeRadio.addEventListener('change', () => this.setDifficultyMode(true));
+        this.normalModeRadio.addEventListener('change', () => this.setDifficultyMode(false));
         
         document.addEventListener('keydown', (e) => this.handleKeydown(e));
         
         // Cleanup mobile input on page unload
         window.addEventListener('beforeunload', () => this.removeMobileInput());
         
+        this.setDifficultyMode(true); // Start in easy mode
         this.newGame();
+    }
+    
+    setDifficultyMode(isEasy) {
+        this.isEasyMode = isEasy;
+        
+        // Show/hide validate button
+        if (isEasy) {
+            this.validateBtn.style.display = 'none';
+            this.validationInstruction.textContent = 'Server validation provides immediate feedback';
+        } else {
+            this.validateBtn.style.display = 'inline-block';
+            this.validationInstruction.textContent = 'Click "Validate" to check your solution';
+        }
+        
+        // Clear any existing feedback
+        this.showFeedback('', '');
     }
     
     async newGame() {
@@ -185,52 +212,64 @@ class SudokuClient {
         
         // If the same number is already in this cell, just show success (no change needed)
         if (this.board[row][col] === num) {
-            this.updateCell(row, col, num, 'success');
-            this.showFeedback('Number confirmed!', 'success');
+            if (this.isEasyMode) {
+                this.updateCell(row, col, num, 'success');
+                this.showFeedback('Number confirmed!', 'success');
+            }
             return;
         }
         
-        try {
-            // Create a copy of the board with the current cell cleared for validation
-            const boardForValidation = this.board.map(r => [...r]);
-            boardForValidation[row][col] = 0; // Clear the cell temporarily for validation
-            
-            const response = await fetch(`${this.basePath}/api/validate-move`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    board: boardForValidation,
-                    row: row,
-                    col: col,
-                    num: num
-                })
-            });
-            
-            const result = await response.json();
-            
-            if (result.valid) {
-                this.board = result.board;
-                this.updateCell(row, col, num, 'success');
+        // Update the board immediately
+        this.board[row][col] = num;
+        this.updateCell(row, col, num, '');
+        
+        if (this.isEasyMode) {
+            // Easy mode: validate immediately
+            try {
+                // Create a copy of the board with the current cell cleared for validation
+                const boardForValidation = this.board.map(r => [...r]);
+                boardForValidation[row][col] = 0; // Clear the cell temporarily for validation
                 
-                if (result.solved) {
-                    this.showFeedback(result.message, 'solved');
-                    this.celebrateSolution();
+                const response = await fetch(`${this.basePath}/api/validate-move`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        board: boardForValidation,
+                        row: row,
+                        col: col,
+                        num: num
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.valid) {
+                    this.board = result.board;
+                    this.updateCell(row, col, num, 'success');
+                    
+                    if (result.solved) {
+                        this.showFeedback(result.message, 'solved');
+                        this.celebrateSolution();
+                    } else {
+                        this.showFeedback(result.message, 'success');
+                    }
                 } else {
-                    this.showFeedback(result.message, 'success');
+                    this.updateCell(row, col, num, 'error');
+                    this.showFeedback(result.message, 'error');
+                    
+                    setTimeout(() => {
+                        this.updateCell(row, col, this.board[row][col] || '', '');
+                    }, 1000);
                 }
-            } else {
-                this.updateCell(row, col, num, 'error');
-                this.showFeedback(result.message, 'error');
-                
-                setTimeout(() => {
-                    this.updateCell(row, col, this.board[row][col] || '', '');
-                }, 1000);
+            } catch (error) {
+                this.showFeedback('Server error. Please try again.', 'error');
+                console.error('Error validating move:', error);
             }
-        } catch (error) {
-            this.showFeedback('Server error. Please try again.', 'error');
-            console.error('Error validating move:', error);
+        } else {
+            // Normal mode: just place the number, no immediate validation
+            this.showFeedback('Number placed. Use "Validate" to check your solution.', 'info');
         }
     }
     
@@ -252,6 +291,54 @@ class SudokuClient {
         cell.classList.remove('error', 'success');
         if (state) {
             cell.classList.add(state);
+        }
+    }
+    
+    async validateBoard() {
+        try {
+            this.showFeedback('Validating board...', 'info');
+            
+            // Check if board is complete
+            let isEmpty = false;
+            for (let row = 0; row < 9; row++) {
+                for (let col = 0; col < 9; col++) {
+                    if (this.board[row][col] === 0) {
+                        isEmpty = true;
+                        break;
+                    }
+                }
+                if (isEmpty) break;
+            }
+            
+            if (isEmpty) {
+                this.showFeedback('Board is not complete yet. Keep solving!', 'info');
+                return;
+            }
+            
+            // Validate the complete board by checking if it's solved
+            const response = await fetch(`${this.basePath}/api/validate-board`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    board: this.board
+                })
+            });
+            
+            const result = await response.json();
+            
+            if (result.valid && result.solved) {
+                this.showFeedback('🎉 Congratulations! You solved the puzzle correctly!', 'solved');
+                this.celebrateSolution();
+            } else if (result.valid) {
+                this.showFeedback('Board is valid but not complete yet.', 'success');
+            } else {
+                this.showFeedback('❌ Board contains errors. Check your numbers!', 'error');
+            }
+        } catch (error) {
+            this.showFeedback('Error validating board. Please try again.', 'error');
+            console.error('Error validating board:', error);
         }
     }
     

@@ -231,6 +231,34 @@ app.get(BASE_PATH + '/api/hint', (req, res) => {
   }
 });
 
+app.post(BASE_PATH + '/api/validate-board', (req, res) => {
+  const { board } = req.body;
+  
+  if (!board || !Array.isArray(board) || board.length !== 9) {
+    return res.status(400).json({
+      valid: false,
+      message: "Invalid board format"
+    });
+  }
+  
+  // Check if board is solved using the existing game logic
+  const solved = currentGame.isSolved(board);
+  
+  if (solved) {
+    res.json({
+      valid: true,
+      solved: true,
+      message: "Congratulations! Puzzle solved correctly!"
+    });
+  } else {
+    res.json({
+      valid: false,
+      solved: false,
+      message: "Board contains errors"
+    });
+  }
+});
+
 app.get(BASE_PATH + '/', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
