@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "A Sudoku game with JavaScript frontend and Node.js backend",
   "scripts": {
-    "start": "node backend/server.js"
+    "start": "node backend/server.js",
+    "cloud-deploy": "./cloud_deploy.sh"
   },
   "dependencies": {
     "express": "^4.18.2",
