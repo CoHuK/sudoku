@@ -3,11 +3,13 @@
 ## Local Development
 
 1. Install dependencies:
+
    ```bash
    npm install
    ```
 
 2. Start the server:
+
    ```bash
    npm start
    ```
@@ -16,13 +18,15 @@
 
 ## Docker Deployment
 
-### Build and run with Docker:
+### Build and run with Docker
+
 ```bash
 docker build -t sudoku-game .
 docker run -d -p 3000:3000 --name sudoku-container sudoku-game
 ```
 
-### Using Docker Compose:
+### Using Docker Compose
+
 ```bash
 docker-compose up -d
 ```
@@ -32,6 +36,7 @@ docker-compose up -d
 ### Option 1: AWS Elastic Beanstalk (Recommended - Free Tier Eligible)
 
 **Prerequisites:**
+
 ```bash
 # Install AWS CLI
 brew install awscli
@@ -44,6 +49,7 @@ aws configure
 ```
 
 **Deployment Steps:**
+
 ```bash
 # 1. Initialize Elastic Beanstalk application
 eb init
@@ -56,7 +62,7 @@ eb init
 # - Setup SSH: Yes (optional)
 
 # 2. Create environment (single instance to avoid load balancer costs)
-eb create sudoku-production --single-instance
+eb create sudoku-production --single
 
 # 3. Deploy updates
 eb deploy
@@ -72,6 +78,7 @@ eb logs
 ```
 
 **Environment Configuration:**
+
 ```bash
 # Set environment variables if needed
 eb setenv NODE_ENV=production PORT=3000
@@ -80,20 +87,23 @@ eb setenv NODE_ENV=production PORT=3000
 eb scale 1
 ```
 
-**Cost Estimate:** 
+**Cost Estimate:**
+
 - Single t2.micro instance: **FREE** (first 12 months)
-- No load balancer charges with `--single-instance`
+- No load balancer charges with `--single`
 - Minimal data transfer costs
 
 ### Option 2: Direct EC2 Deployment (Full Control)
 
 **Prerequisites:**
+
 ```bash
 # Install AWS CLI and configure
 aws configure
 ```
 
-**Step 1: Launch EC2 Instance**
+#### Step 1: Launch EC2 Instance
+
 ```bash
 # Create security group
 aws ec2 create-security-group \
@@ -130,7 +140,8 @@ aws ec2 run-instances \
     --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=sudoku-server}]'
 ```
 
-**Step 2: Setup Server**
+#### Step 2: Setup Server
+
 ```bash
 # Get instance public IP
 INSTANCE_IP=$(aws ec2 describe-instances \
@@ -160,9 +171,10 @@ nvm use node
 sudo yum install -y git
 ```
 
-**Step 3: Deploy Application**
+#### Step 3: Deploy Application
 
-**Option A: Using Docker**
+##### Option A: Using Docker
+
 ```bash
 # Clone your repository
 git clone https://github.com/yourusername/sudoku-game.git
@@ -173,7 +185,8 @@ docker build -t sudoku-game .
 docker run -d -p 80:3000 --name sudoku-app --restart unless-stopped sudoku-game
 ```
 
-**Option B: Direct Node.js**
+##### Option B: Direct Node.js
+
 ```bash
 # Clone repository
 git clone https://github.com/yourusername/sudoku-game.git
@@ -193,7 +206,8 @@ pm2 startup
 pm2 save
 ```
 
-**Step 4: Configure Domain (Optional)**
+#### Step 4: Configure Domain (Optional)
+
 ```bash
 # Get Elastic IP for static IP address
 aws ec2 allocate-address --domain vpc
@@ -205,6 +219,7 @@ aws ec2 associate-address \
 ```
 
 **Maintenance Commands:**
+
 ```bash
 # View application logs
 docker logs sudoku-app
@@ -234,6 +249,7 @@ docker stats
 ### Monitoring and Troubleshooting
 
 **For Elastic Beanstalk:**
+
 ```bash
 # Check health
 eb health
@@ -249,6 +265,7 @@ eb config
 ```
 
 **For Direct EC2:**
+
 ```bash
 # Check application status
 curl http://your-instance-ip
@@ -267,6 +284,7 @@ pm2 status
 ```
 
 ## Environment Variables
+
 - `PORT`: Server port (default: 3000, use 80 for production)
 - `NODE_ENV`: Environment (development/production)
 
@@ -275,6 +293,7 @@ pm2 status
 ### 🏆 Option 1: Subdomain (Recommended) - `sudoku.strongin.qa`
 
 **Why this is better:**
+
 - Easier setup (one DNS record)
 - No code changes needed
 - Independent from your main site
@@ -286,6 +305,7 @@ pm2 status
 1. **Deploy to AWS first** (complete EB or EC2 deployment)
 
 2. **Get your AWS endpoint:**
+
    ```bash
    # For Elastic Beanstalk
    eb status | grep "CNAME"
@@ -297,6 +317,7 @@ pm2 status
    ```
 
 3. **Configure Cloudflare DNS:**
+
    - Go to Cloudflare dashboard → strongin.qa domain
    - Click "DNS" tab
    - Add new record:
@@ -307,6 +328,7 @@ pm2 status
      - **TTL**: Auto
 
 4. **Set environment variable:**
+
    ```bash
    # For Elastic Beanstalk (remove base path)
    eb setenv BASE_PATH=""
@@ -316,6 +338,7 @@ pm2 status
    ```
 
 5. **Test your deployment:**
+
    ```bash
    # Wait 5-10 minutes for DNS propagation, then test:
    curl -I https://sudoku.strongin.qa
@@ -334,6 +357,7 @@ pm2 status
 2. **Deploy to AWS** (complete EB or EC2 deployment)
 
 3. **Configure Cloudflare Page Rules:**
+
    - Go to Cloudflare dashboard → strongin.qa domain
    - Click "Rules" → "Page Rules"
    - Create new rule:
@@ -342,6 +366,7 @@ pm2 status
      - **Destination**: `https://your-eb-app.region.elasticbeanstalk.com$1`
 
 4. **Alternative: Cloudflare Workers (More advanced):**
+
    ```javascript
    // Cloudflare Worker script
    addEventListener('fetch', event => {
@@ -377,17 +402,19 @@ pm2 status
 
 ## DNS Configuration Details
 
-### For `sudoku.strongin.qa` (Recommended):
-```
+### For `sudoku.strongin.qa` (Recommended)
+
+```text
 Type: CNAME
 Name: sudoku
 Target: your-eb-app.us-east-1.elasticbeanstalk.com
 Proxy: ☁️ Proxied (Orange Cloud)
 ```
 
-### Cloudflare SSL Settings:
+### Cloudflare SSL Settings
+
 - Go to SSL/TLS → Overview
-- Set to "Flexible" or "Full" 
+- Set to "Flexible" or "Full"
 - "Full (strict)" if you add SSL to your AWS instance
 
 ## Testing & Verification
@@ -415,17 +442,20 @@ Both options are completely free for the first year! 🎉
 ## Troubleshooting
 
 **If subdomain doesn't work:**
+
 1. Check DNS propagation: `dig sudoku.strongin.qa`
 2. Verify CNAME points to correct AWS endpoint
 3. Ensure Cloudflare proxy is enabled (orange cloud)
 4. Wait up to 24 hours for full propagation
 
 **If you see SSL errors:**
+
 1. In Cloudflare, go to SSL/TLS → Overview
 2. Set to "Flexible" mode initially
 3. Once working, upgrade to "Full" for better security
 
 ## Security Notes
+
 - Both options include security groups restricting access to necessary ports only
 - Consider adding SSL/TLS certificate for production use
 - Regular security updates recommended

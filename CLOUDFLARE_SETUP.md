@@ -3,13 +3,15 @@
 ## Step-by-Step Visual Guide
 
 ### 1. Deploy to AWS First
+
 ```bash
 # Choose one:
-eb create sudoku-production --single-instance  # Elastic Beanstalk
+eb create sudoku-production --single  # Elastic Beanstalk
 # OR follow EC2 deployment steps
 ```
 
 ### 2. Get AWS Endpoint
+
 ```bash
 eb status
 # Look for: CNAME: sudoku-production.us-east-1.elasticbeanstalk.com
@@ -23,13 +25,15 @@ eb status
 2. Click **DNS** tab
 3. Click **Add record**
 4. Fill in:
-   ```
+
+   ```text
    Type: CNAME
    Name: sudoku
    Target: sudoku-production.us-east-1.elasticbeanstalk.com
    Proxy status: ☁️ Proxied (Orange cloud - ENABLED)
    TTL: Auto
    ```
+
 5. Click **Save**
 
 ### 4. SSL Configuration
@@ -58,7 +62,7 @@ curl -I https://sudoku.strongin.qa | grep -i cf-ray
 
 ## What You Get
 
-✅ **URL**: https://sudoku.strongin.qa  
+✅ **URL**: <https://sudoku.strongin.qa>  
 ✅ **Free SSL**: Automatic HTTPS  
 ✅ **Global CDN**: Fast loading worldwide  
 ✅ **DDoS Protection**: Enterprise security  
@@ -67,12 +71,14 @@ curl -I https://sudoku.strongin.qa | grep -i cf-ray
 ## Expected Results
 
 **Success indicators:**
+
 - `dig sudoku.strongin.qa` returns Cloudflare IPs
 - `curl -I https://sudoku.strongin.qa` returns 200 OK
 - Browser shows secure lock icon
 - Game loads and works normally
 
 **Troubleshooting:**
+
 - If DNS doesn't resolve: Wait up to 24 hours
 - If SSL errors: Use "Flexible" mode in Cloudflare
 - If 502 errors: Check AWS instance is running
