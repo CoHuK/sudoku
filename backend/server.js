@@ -1,0 +1,240 @@
+const express = require('express');
+const cors = require('cors');
+const path = require('path');
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+const BASE_PATH = process.env.BASE_PATH || '';
+
+app.use(cors());
+app.use(express.json());
+app.use(BASE_PATH, express.static(path.join(__dirname, '../frontend')));
+
+class SudokuGame {
+  constructor() {
+    this.board = this.generatePuzzle();
+    this.solution = this.solvePuzzle(this.deepCopy(this.board));
+  }
+
+  generateEmptyBoard() {
+    return Array(9).fill().map(() => Array(9).fill(0));
+  }
+
+  deepCopy(board) {
+    return board.map(row => [...row]);
+  }
+
+  isValid(board, row, col, num) {
+    for (let i = 0; i < 9; i++) {
+      if (board[row][i] === num || board[i][col] === num) {
+        return false;
+      }
+    }
+
+    const boxRow = Math.floor(row / 3) * 3;
+    const boxCol = Math.floor(col / 3) * 3;
+    for (let i = boxRow; i < boxRow + 3; i++) {
+      for (let j = boxCol; j < boxCol + 3; j++) {
+        if (board[i][j] === num) {
+          return false;
+        }
+      }
+    }
+
+    return true;
+  }
+
+  solvePuzzle(board) {
+    for (let row = 0; row < 9; row++) {
+      for (let col = 0; col < 9; col++) {
+        if (board[row][col] === 0) {
+          for (let num = 1; num <= 9; num++) {
+            if (this.isValid(board, row, col, num)) {
+              board[row][col] = num;
+              if (this.solvePuzzle(board)) {
+                return board;
+              }
+              board[row][col] = 0;
+            }
+          }
+          return false;
+        }
+      }
+    }
+    return board;
+  }
+
+  generateCompletedBoard() {
+    const board = this.generateEmptyBoard();
+    const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+    
+    const fillBoard = (board) => {
+      for (let row = 0; row < 9; row++) {
+        for (let col = 0; col < 9; col++) {
+          if (board[row][col] === 0) {
+            const shuffled = [...numbers].sort(() => Math.random() - 0.5);
+            for (let num of shuffled) {
+              if (this.isValid(board, row, col, num)) {
+                board[row][col] = num;
+                if (fillBoard(board)) {
+                  return true;
+                }
+                board[row][col] = 0;
+              }
+            }
+            return false;
+          }
+        }
+      }
+      return true;
+    };
+
+    fillBoard(board);
+    return board;
+  }
+
+  generatePuzzle() {
+    const completed = this.generateCompletedBoard();
+    const puzzle = this.deepCopy(completed);
+    
+    const cellsToRemove = 40 + Math.floor(Math.random() * 10);
+    
+    for (let i = 0; i < cellsToRemove; i++) {
+      let row, col;
+      do {
+        row = Math.floor(Math.random() * 9);
+        col = Math.floor(Math.random() * 9);
+      } while (puzzle[row][col] === 0);
+      
+      puzzle[row][col] = 0;
+    }
+    
+    return puzzle;
+  }
+
+  validateMove(board, row, col, num) {
+    if (num < 1 || num > 9) {
+      return { valid: false, message: "Number must be between 1 and 9" };
+    }
+
+    if (!this.isValid(board, row, col, num)) {
+      return { valid: false, message: "This number conflicts with Sudoku rules" };
+    }
+
+    return { valid: true, message: "Valid move!" };
+  }
+
+  isSolved(board) {
+    for (let row = 0; row < 9; row++) {
+      for (let col = 0; col < 9; col++) {
+        if (board[row][col] === 0) {
+          return false;
+        }
+      }
+    }
+    
+    for (let row = 0; row < 9; row++) {
+      for (let col = 0; col < 9; col++) {
+        const num = board[row][col];
+        board[row][col] = 0;
+        if (!this.isValid(board, row, col, num)) {
+          board[row][col] = num;
+          return false;
+        }
+        board[row][col] = num;
+      }
+    }
+    
+    return true;
+  }
+}
+
+let currentGame = new SudokuGame();
+
+app.get(BASE_PATH + '/api/new-game', (req, res) => {
+  currentGame = new SudokuGame();
+  res.json({
+    board: currentGame.board,
+    message: "New game started!"
+  });
+});
+
+app.get(BASE_PATH + '/api/game-state', (req, res) => {
+  res.json({
+    board: currentGame.board
+  });
+});
+
+app.post(BASE_PATH + '/api/validate-move', (req, res) => {
+  const { board, row, col, num } = req.body;
+  
+  if (row < 0 || row > 8 || col < 0 || col > 8) {
+    return res.status(400).json({
+      valid: false,
+      message: "Invalid position"
+    });
+  }
+
+  const validation = currentGame.validateMove(board, row, col, num);
+  
+  if (validation.valid) {
+    currentGame.board = board;
+    currentGame.board[row][col] = num;
+    
+    const solved = currentGame.isSolved(currentGame.board);
+    
+    res.json({
+      valid: true,
+      message: solved ? "Congratulations! Puzzle solved!" : "Valid move!",
+      solved: solved,
+      board: currentGame.board
+    });
+  } else {
+    res.json(validation);
+  }
+});
+
+app.get(BASE_PATH + '/api/hint', (req, res) => {
+  const { row, col } = req.query;
+  
+  if (row !== undefined && col !== undefined) {
+    const r = parseInt(row);
+    const c = parseInt(col);
+    
+    if (r >= 0 && r < 9 && c >= 0 && c < 9 && currentGame.board[r][c] === 0) {
+      res.json({
+        hint: currentGame.solution[r][c],
+        message: `The correct number for this cell is ${currentGame.solution[r][c]}`
+      });
+    } else {
+      res.status(400).json({
+        message: "Invalid position or cell is already filled"
+      });
+    }
+  } else {
+    for (let row = 0; row < 9; row++) {
+      for (let col = 0; col < 9; col++) {
+        if (currentGame.board[row][col] === 0) {
+          return res.json({
+            hint: currentGame.solution[row][col],
+            row: row,
+            col: col,
+            message: `Try placing ${currentGame.solution[row][col]} at row ${row + 1}, column ${col + 1}`
+          });
+        }
+      }
+    }
+    
+    res.json({
+      message: "No empty cells found"
+    });
+  }
+});
+
+app.get(BASE_PATH + '/', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/index.html'));
+});
+
+app.listen(PORT, () => {
+  console.log(`Sudoku server running on port ${PORT}`);
+});

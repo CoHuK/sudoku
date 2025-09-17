@@ -1,0 +1,15 @@
+{
+  "AWSEBDockerrunVersion": "1",
+  "Image": {
+    "Name": "cohuk/sudoku-game:latest",
+    "Update": "true"
+  },
+  "Ports": [
+    {
+      "ContainerPort": "3000",
+      "HostPort": "80"
+    }
+  ],
+  "Volumes": [],
+  "Logging": "/var/log/sudoku"
+}
