@@ -12,8 +12,9 @@ app.use(BASE_PATH, express.static(path.join(__dirname, '../frontend')));
 
 class SudokuGame {
   constructor() {
-    this.board = this.generatePuzzle();
-    this.solution = this.solvePuzzle(this.deepCopy(this.board));
+    this.originalBoard = this.generatePuzzle();
+    this.board = this.deepCopy(this.originalBoard);
+    this.solution = this.solvePuzzle(this.deepCopy(this.originalBoard));
   }
 
   generateEmptyBoard() {
@@ -154,7 +155,7 @@ let currentGame = new SudokuGame();
 app.get(BASE_PATH + '/api/new-game', (req, res) => {
   currentGame = new SudokuGame();
   res.json({
-    board: currentGame.board,
+    board: currentGame.originalBoard,
     message: "New game started!"
   });
 });
@@ -201,20 +202,20 @@ app.get(BASE_PATH + '/api/hint', (req, res) => {
     const r = parseInt(row);
     const c = parseInt(col);
     
-    if (r >= 0 && r < 9 && c >= 0 && c < 9 && currentGame.board[r][c] === 0) {
+    if (r >= 0 && r < 9 && c >= 0 && c < 9 && currentGame.originalBoard[r][c] === 0) {
       res.json({
         hint: currentGame.solution[r][c],
         message: `The correct number for this cell is ${currentGame.solution[r][c]}`
       });
     } else {
       res.status(400).json({
-        message: "Invalid position or cell is already filled"
+        message: "Invalid position or cell is pre-filled"
       });
     }
   } else {
     for (let row = 0; row < 9; row++) {
       for (let col = 0; col < 9; col++) {
-        if (currentGame.board[row][col] === 0) {
+        if (currentGame.originalBoard[row][col] === 0) {
           return res.json({
             hint: currentGame.solution[row][col],
             row: row,
