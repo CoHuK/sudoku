@@ -22,7 +22,7 @@
 
 ```bash
 docker build -t sudoku-game .
-docker run -d -p 3000:3000 --name sudoku-container sudoku-game
+docker run -d -p 80:3000 --name sudoku-container sudoku-game
 ```
 
 ### Using Docker Compose
@@ -42,7 +42,7 @@ docker-compose up -d
 brew install awscli
 
 # Install EB CLI
-pip install awsebcli
+brew install awsebcli
 
 # Configure AWS credentials
 aws configure
