@@ -53,7 +53,7 @@ This is a demonstration project showcasing modern web development practices and 
 ```bash
 # Build and run with Docker
 docker build -t sudoku-game .
-docker run -d -p 3000:3000 --name sudoku-container sudoku-game
+docker run -d -p 80:3000 --name sudoku-container sudoku-game
 
 # Or use Docker Compose
 docker-compose up -d
@@ -176,7 +176,7 @@ Internet → Cloudflare CDN → AWS Elastic Beanstalk → EC2 Instance → Docke
 
 ## 💰 Cost
 
-This project is designed to run **completely free** for the first year:
+This project is designed to run **completely free** for the first year (6 months, if you have a new AWS free-tier):
 
 - **AWS Free Tier**: t2.micro EC2 instance
 - **Cloudflare Free Plan**: CDN and SSL
