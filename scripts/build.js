@@ -82,6 +82,8 @@ h1 { text-align: center; color: #333; margin-bottom: 20px; }
 .cell { background: white; border: 1px solid #ddd; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; cursor: pointer; }
 .cell:nth-child(3n):not(:nth-child(9n)) { border-right: 3px solid #333; }
 .cell:nth-child(n+19):nth-child(-n+27), .cell:nth-child(n+46):nth-child(-n+54) { border-bottom: 3px solid #333; }
+[role="rowgroup"] .cell:nth-child(3n):not(:nth-child(9n)) { border-right: 3px solid #333; }
+[role="rowgroup"] [role="row"]:nth-child(3n) .cell, [role="rowgroup"] [role="row"]:nth-child(6n) .cell { border-bottom: 3px solid #333; }
 .cell:hover { background: #f0f8ff; }
 .cell.selected { background: #e3f2fd; border: 2px solid #2196F3; }
 .cell.prefilled { background: #f5f5f5; color: #333; }
