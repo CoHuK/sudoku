@@ -41,11 +41,18 @@ class SudokuClient {
         
         document.addEventListener('keydown', (e) => this.handleKeydown(e));
         
-        // Cleanup mobile input on page unload
-        window.addEventListener('beforeunload', () => this.removeMobileInput());
+        // Save game state before page unload
+        window.addEventListener('beforeunload', () => {
+            this.saveGameState();
+            this.removeMobileInput();
+        });
         
         this.setDifficultyMode(true); // Start in easy mode
-        this.newGame();
+        
+        // Try to load existing game state, otherwise start new game
+        if (!this.loadGameState()) {
+            this.newGame();
+        }
     }
     
     setDifficultyMode(isEasy) {
@@ -64,12 +71,77 @@ class SudokuClient {
         this.showFeedback('', '');
     }
     
+    saveGameState() {
+        if (this.board && this.originalBoard) {
+            const gameState = {
+                board: this.board,
+                originalBoard: this.originalBoard,
+                isEasyMode: this.isEasyMode,
+                timestamp: Date.now()
+            };
+            localStorage.setItem('sudokuGameState', JSON.stringify(gameState));
+        }
+    }
+    
+    loadGameState() {
+        try {
+            const savedState = localStorage.getItem('sudokuGameState');
+            if (!savedState) {
+                return false;
+            }
+            
+            const gameState = JSON.parse(savedState);
+            
+            // Check if the saved state is not too old (24 hours max)
+            const maxAge = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+            if (Date.now() - gameState.timestamp > maxAge) {
+                localStorage.removeItem('sudokuGameState');
+                return false;
+            }
+            
+            // Validate the saved state structure
+            if (!gameState.board || !gameState.originalBoard || 
+                !Array.isArray(gameState.board) || !Array.isArray(gameState.originalBoard) ||
+                gameState.board.length !== 9 || gameState.originalBoard.length !== 9) {
+                localStorage.removeItem('sudokuGameState');
+                return false;
+            }
+            
+            // Restore the game state
+            this.board = gameState.board;
+            this.originalBoard = gameState.originalBoard;
+            this.isEasyMode = gameState.isEasyMode !== undefined ? gameState.isEasyMode : true;
+            
+            // Update difficulty mode UI
+            this.easyModeRadio.checked = this.isEasyMode;
+            this.normalModeRadio.checked = !this.isEasyMode;
+            this.setDifficultyMode(this.isEasyMode);
+            
+            // Render the restored game
+            this.renderGrid();
+            this.showFeedback('Game restored from previous session', 'info');
+            
+            return true;
+        } catch (error) {
+            console.error('Error loading game state:', error);
+            localStorage.removeItem('sudokuGameState');
+            return false;
+        }
+    }
+    
+    clearGameState() {
+        localStorage.removeItem('sudokuGameState');
+    }
+    
     async newGame() {
         try {
             this.showFeedback('Loading new game...', 'info');
             
             // Clean up any existing mobile input
             this.removeMobileInput();
+            
+            // Clear any existing saved game state
+            this.clearGameState();
             
             const response = await fetch(`${this.basePath}/api/new-game`);
             const data = await response.json();
@@ -79,6 +151,9 @@ class SudokuClient {
             
             this.renderGrid();
             this.showFeedback(data.message, 'success');
+            
+            // Save the new game state
+            this.saveGameState();
         } catch (error) {
             this.showFeedback('Failed to load new game. Please try again.', 'error');
             console.error('Error loading new game:', error);
@@ -266,8 +341,11 @@ class SudokuClient {
             return;
         }
         
+        // Store the original value before making the move
+        const originalValue = this.board[row][col];
+        
         // If the same number is already in this cell, just show success (no change needed)
-        if (this.board[row][col] === num) {
+        if (originalValue === num) {
             if (this.isEasyMode) {
                 this.updateCell(row, col, num, 'success');
                 this.showFeedback('Number confirmed!', 'success');
@@ -275,7 +353,7 @@ class SudokuClient {
             return;
         }
         
-        // Update the board immediately
+        // Update the board immediately for UI responsiveness
         this.board[row][col] = num;
         this.updateCell(row, col, num, '');
         
@@ -305,27 +383,39 @@ class SudokuClient {
                     this.board = result.board;
                     this.updateCell(row, col, num, 'success');
                     
+                    // Save game state after valid move
+                    this.saveGameState();
+                    
                     if (result.solved) {
                         this.showFeedback(result.message, 'solved');
                         this.celebrateSolution();
+                        // Clear saved state when puzzle is solved
+                        this.clearGameState();
                     } else {
                         this.showFeedback(result.message, 'success');
                     }
                 } else {
+                    // Revert the board state for invalid moves
+                    this.board[row][col] = originalValue;
                     this.updateCell(row, col, num, 'error');
                     this.showFeedback(result.message, 'error');
                     
                     setTimeout(() => {
-                        this.updateCell(row, col, this.board[row][col] || '', '');
+                        this.updateCell(row, col, originalValue || '', '');
                     }, 1000);
                 }
             } catch (error) {
+                // Revert the board state on server error
+                this.board[row][col] = originalValue;
+                this.updateCell(row, col, originalValue || '', '');
                 this.showFeedback('Server error. Please try again.', 'error');
                 console.error('Error validating move:', error);
             }
         } else {
             // Normal mode: just place the number, no immediate validation
             this.showFeedback('Number placed. Use "Validate" to check your solution.', 'info');
+            // Save game state after placing number in normal mode
+            this.saveGameState();
         }
     }
     
@@ -338,6 +428,9 @@ class SudokuClient {
         this.board[row][col] = 0;
         this.updateCell(row, col, '', '');
         this.showFeedback('Cell cleared', 'info');
+        
+        // Save game state after clearing cell
+        this.saveGameState();
     }
     
     updateCell(row, col, value, state) {
@@ -394,6 +487,8 @@ class SudokuClient {
             if (result.valid && result.solved) {
                 this.showFeedback('🎉 Congratulations! You solved the puzzle correctly!', 'solved');
                 this.celebrateSolution();
+                // Clear saved state when puzzle is solved
+                this.clearGameState();
             } else if (result.valid) {
                 this.showFeedback('Board is valid but not complete yet.', 'success');
             } else {
@@ -427,6 +522,9 @@ class SudokuClient {
                     this.showFeedback(result.message, 'info');
                     this.updateCell(row, col, result.hint, 'success');
                     this.board[row][col] = result.hint;
+                    
+                    // Save game state after applying hint
+                    this.saveGameState();
                 } else {
                     this.showFeedback(result.message, 'error');
                 }
@@ -446,6 +544,9 @@ class SudokuClient {
                     setTimeout(() => {
                         this.updateCell(result.row, result.col, result.hint, 'success');
                         this.board[result.row][result.col] = result.hint;
+                        
+                        // Save game state after applying hint
+                        this.saveGameState();
                     }, 500);
                 } else {
                     this.showFeedback(result.message, 'info');
@@ -486,5 +587,5 @@ class SudokuClient {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    new SudokuClient();
+    window.sudokuClient = new SudokuClient();
 });

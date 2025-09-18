@@ -67,9 +67,9 @@ app.use((req, res, next) => {
   next();
 });
 
-// Cache static files for 1 year
+// Cache static files - different settings for dev vs production
 app.use(BASE_PATH, express.static(path.join(__dirname, '../frontend'), {
-  maxAge: '1y',
+  maxAge: process.env.NODE_ENV === 'production' ? '1y' : '0',  // No cache in development, 1 year in production
   etag: true,
   lastModified: true
 }));
