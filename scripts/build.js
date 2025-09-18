@@ -58,10 +58,10 @@ function minifyJS(js) {
 }
 
 // Read source files
-const scriptPath = path.join(__dirname, 'frontend', 'script.js');
-const stylePath = path.join(__dirname, 'frontend', 'style.css');
-const criticalPath = path.join(__dirname, 'frontend', 'critical.css');
-const indexPath = path.join(__dirname, 'frontend', 'index.html');
+const scriptPath = path.join(__dirname, '..', 'frontend', 'script.js');
+const stylePath = path.join(__dirname, '..', 'frontend', 'style.css');
+const criticalPath = path.join(__dirname, '..', 'frontend', 'critical.css');
+const indexPath = path.join(__dirname, '..', 'frontend', 'index.html');
 
 // Read files
 const scriptContent = fs.readFileSync(scriptPath, 'utf8');
@@ -83,9 +83,9 @@ const optimizedHTML = indexContent
     .replace(/<noscript><link rel="stylesheet" href="style\.css"><\/noscript>/g, '');
 
 // Write minified files
-fs.writeFileSync(path.join(__dirname, 'frontend', 'script.min.js'), minifiedScript);
-fs.writeFileSync(path.join(__dirname, 'frontend', 'style.min.css'), minifiedStyle);
-fs.writeFileSync(path.join(__dirname, 'frontend', 'index.optimized.html'), optimizedHTML);
+fs.writeFileSync(path.join(__dirname, '..', 'frontend', 'script.min.js'), minifiedScript);
+fs.writeFileSync(path.join(__dirname, '..', 'frontend', 'style.min.css'), minifiedStyle);
+fs.writeFileSync(path.join(__dirname, '..', 'frontend', 'index.optimized.html'), optimizedHTML);
 
 // Add non-blocking CSS loading
 const finalHTML = optimizedHTML.replace(
@@ -95,7 +95,7 @@ const finalHTML = optimizedHTML.replace(
 </head>`
 );
 
-fs.writeFileSync(path.join(__dirname, 'frontend', 'index.optimized.html'), finalHTML);
+fs.writeFileSync(path.join(__dirname, '..', 'frontend', 'index.optimized.html'), finalHTML);
 
 console.log('Build completed!');
 console.log('Generated files:');

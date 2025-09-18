@@ -3,6 +3,11 @@ const cors = require('cors');
 const path = require('path');
 const compression = require('compression');
 
+// Get version information
+const packageJson = require('../package.json');
+const VERSION = packageJson.version;
+const BUILD_TIME = new Date().toISOString();
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 const BASE_PATH = process.env.BASE_PATH || '';
@@ -184,13 +189,26 @@ app.get(BASE_PATH + '/api/new-game', (req, res) => {
   currentGame = new SudokuGame();
   res.json({
     board: currentGame.originalBoard,
-    message: "New game started!"
+    message: "New game started!",
+    version: VERSION,
+    buildTime: BUILD_TIME
   });
 });
 
 app.get(BASE_PATH + '/api/game-state', (req, res) => {
   res.json({
     board: currentGame.board
+  });
+});
+
+app.get(BASE_PATH + '/api/version', (req, res) => {
+  res.json({
+    version: VERSION,
+    buildTime: BUILD_TIME,
+    name: packageJson.name,
+    description: packageJson.description,
+    nodeVersion: process.version,
+    environment: process.env.NODE_ENV || 'development'
   });
 });
 

@@ -1,12 +1,21 @@
 {
   "name": "sudoku-game",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A Sudoku game with JavaScript frontend and Node.js backend",
   "scripts": {
     "start": "node backend/server.js",
-    "build": "node build.js",
+    "build": "node scripts/build.js",
     "dev": "npm run build && npm start",
-    "cloud-deploy": "./cloud_deploy.sh"
+    "version:patch": "npm version patch && git push && git push --tags",
+    "version:minor": "npm version minor && git push && git push --tags",
+    "version:major": "npm version major && git push && git push --tags",
+    "prebuild": "echo 'Building version $(node -p \"require('./package.json').version\")'",
+    "cloud-deploy": "./scripts/cloud_deploy.sh",
+    "version": "./scripts/version.sh",
+    "docker:build": "docker build -f Dockerfile.production -t sudoku-game:$(node -p \"require('./package.json').version\") .",
+    "docker:build-latest": "docker build -f Dockerfile.production -t sudoku-game:latest .",
+    "docker:run": "docker run -p 80:80 sudoku-game:$(node -p \"require('./package.json').version\")",
+    "docker:run-latest": "docker run -p 80:80 sudoku-game:latest"
   },
   "dependencies": {
     "express": "^4.18.2",

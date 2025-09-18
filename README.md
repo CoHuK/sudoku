@@ -125,11 +125,19 @@ Sudoku/
 ├── frontend/
 │   ├── index.html         # Main HTML file
 │   ├── script.js          # Game logic and UI
-│   └── style.css          # Styling and responsive design
-├── cloud_deploy.sh        # Cloud deployment script
-├── deploy.sh              # Local deployment script
+│   ├── style.css          # Styling and responsive design
+│   ├── critical.css       # Critical above-the-fold CSS
+│   ├── script.min.js      # Minified JavaScript (generated)
+│   ├── style.min.css      # Minified CSS (generated)
+│   └── index.optimized.html # Optimized HTML (generated)
+├── scripts/
+│   ├── build.js           # Build optimization script
+│   ├── version.sh         # Version management script
+│   ├── cloud_deploy.sh    # Cloud deployment script
+│   └── README.md          # Scripts documentation
 ├── docker-compose.yml     # Docker Compose configuration
 ├── Dockerfile             # Docker image definition
+├── Dockerfile.production  # Production Docker image
 ├── Dockerrun.aws.json     # AWS EB configuration
 ├── package.json           # Node.js dependencies and scripts
 └── README.md              # This file
@@ -150,8 +158,23 @@ Sudoku/
 ## 🔧 Development Scripts
 
 ```bash
+# Development
 npm start              # Start the development server
-npm run cloud-deploy   # Deploy to AWS cloud infrastructure
+npm run build          # Build optimized production files
+
+# Version Management
+./scripts/version.sh patch    # Bump patch version
+./scripts/version.sh minor    # Bump minor version
+./scripts/version.sh major    # Bump major version
+./scripts/version.sh show     # Show current version
+
+# Deployment
+./scripts/cloud_deploy.sh     # Deploy to AWS cloud infrastructure
+npm run cloud-deploy          # Deploy to AWS (npm script)
+
+# Docker
+npm run docker:build          # Build Docker image
+npm run docker:run            # Run Docker container
 ```
 
 ## 📱 Mobile Support
