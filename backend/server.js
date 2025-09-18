@@ -40,8 +40,8 @@ app.use((req, res, next) => {
   } else {
     // Production CSP - allows necessary resources
     res.setHeader('Content-Security-Policy', 
-      "default-src 'self' 'unsafe-inline' data:; " +
-      "script-src 'self' 'unsafe-inline'; " +
+      "default-src 'self' 'unsafe-inline' 'unsafe-eval' data:; " +
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
       "style-src 'self' 'unsafe-inline' data:; " +
       "img-src 'self' data:; " +
       "font-src 'self' data:; " +
