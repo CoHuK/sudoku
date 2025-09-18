@@ -205,16 +205,17 @@ h1 {
 
 .sudoku-grid {
     display: grid;
-    grid-template-columns: repeat(9, 45px);
-    grid-template-rows: repeat(9, 45px);
+    grid-template-columns: repeat(9, min(45px, calc((100vw - 120px) / 9)));
+    grid-template-rows: repeat(9, min(45px, calc((100vw - 120px) / 9)));
     gap: 2px;
     background: #333;
     padding: 8px;
     border-radius: 10px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-    width: 437px; /* Corrected width: 9 * 45px + 8 * 2px + 2 * 8px padding */
-    height: 437px; /* Corrected height: 9 * 45px + 8 * 2px + 2 * 8px padding */
-    min-height: 437px; /* Prevent collapse before JS loads */
+    max-width: 437px; /* Maximum size for desktop */
+    width: fit-content;
+    height: fit-content;
+    justify-self: center;
     overflow: hidden; /* Prevent grid overflow */
 }
 
@@ -398,8 +399,8 @@ h1 {
     }
     
     .sudoku-grid {
-        grid-template-columns: repeat(9, 35px);
-        grid-template-rows: repeat(9, 35px);
+        grid-template-columns: repeat(9, min(35px, calc((100vw - 80px) / 9)));
+        grid-template-rows: repeat(9, min(35px, calc((100vw - 80px) / 9)));
     }
     
     .cell {
