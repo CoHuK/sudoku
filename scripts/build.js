@@ -100,8 +100,8 @@ const minifiedCritical = minifyCSS(criticalCSS);
 // Create optimized HTML with inlined critical CSS
 const optimizedHTML = indexContent
     .replace(/<link rel="stylesheet" href="style\.css">/g, '')
-    .replace(/<script src="script\.js" defer><\/script>/g, '<script src="script.min.js" defer></script>')
-    .replace(/<script src="script\.js"><\/script>/g, '<script src="script.min.js" defer></script>')
+    .replace(/<script src="script\.js" defer><\/script>/g, '<script src="script.js" defer></script>')
+    .replace(/<script src="script\.js"><\/script>/g, '<script src="script.js" defer></script>')
     .replace(/<link rel="preload" href="style\.css" as="style" onload="this\.onload=null;this\.rel='stylesheet'">/g, '')
     .replace(/<noscript><link rel="stylesheet" href="style\.css"><\/noscript>/g, '')
     .replace(/<title>Sudoku Game<\/title>/, `<title>Sudoku Game</title>
@@ -115,8 +115,8 @@ fs.writeFileSync(path.join(__dirname, '..', 'frontend', 'index.optimized.html'),
 // Add non-blocking CSS loading
 const finalHTML = optimizedHTML.replace(
     '</head>',
-    `<link rel="preload" href="style.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="style.min.css"></noscript>
+    `<link rel="preload" href="style.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="style.css"></noscript>
 </head>`
 );
 
