@@ -51,6 +51,19 @@ app.use((req, res, next) => {
       "form-action 'self'"
     );
   }
+  
+  // Additional security headers
+  res.setHeader('X-Frame-Options', 'DENY'); // Prevent clickjacking
+  res.setHeader('X-Content-Type-Options', 'nosniff'); // Prevent MIME type sniffing
+  res.setHeader('X-XSS-Protection', '1; mode=block'); // Enable XSS filtering
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin'); // Control referrer information
+  res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()'); // Restrict permissions
+  
+  // HSTS for production (HTTPS only)
+  if (!isDevelopment) {
+    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+  }
+  
   next();
 });
 
