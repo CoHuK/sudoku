@@ -13,6 +13,7 @@ class SudokuClient {
         this.originalBoard = [];
         this.selectedCell = null;
         this.isEasyMode = true; // Default to easy mode
+        this.sessionId = this.generateSessionId();
         
         // Handle base path for subdirectory deployment
         this.basePath = window.location.pathname.replace(/\/$/, '') || '';
@@ -28,6 +29,10 @@ class SudokuClient {
         }
         
         this.init();
+    }
+    
+    generateSessionId() {
+        return 'session_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
     }
     
     init() {
@@ -143,7 +148,11 @@ class SudokuClient {
             // Clear any existing saved game state
             this.clearGameState();
             
-            const response = await fetch(`${this.basePath}/api/new-game`);
+            const response = await fetch(`${this.basePath}/api/new-game`, {
+                headers: {
+                    'X-Session-ID': this.sessionId
+                }
+            });
             const data = await response.json();
             
             this.board = data.board.map(row => [...row]);
@@ -367,7 +376,8 @@ class SudokuClient {
                 const response = await fetch(`${this.basePath}/api/validate-move`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'X-Session-ID': this.sessionId
                     },
                     body: JSON.stringify({
                         board: boardForValidation,
@@ -475,7 +485,8 @@ class SudokuClient {
             const response = await fetch(`${this.basePath}/api/validate-board`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'X-Session-ID': this.sessionId
                 },
                 body: JSON.stringify({
                     board: this.board
@@ -520,7 +531,11 @@ class SudokuClient {
         
         try {
             console.log(`Getting hint for cell (${row}, ${col})`);
-            const response = await fetch(`${this.basePath}/api/hint?row=${row}&col=${col}`);
+            const response = await fetch(`${this.basePath}/api/hint?row=${row}&col=${col}`, {
+                headers: {
+                    'X-Session-ID': this.sessionId
+                }
+            });
             
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -569,7 +584,8 @@ class SudokuClient {
                 const response = await fetch(`${this.basePath}/api/validate-board`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'X-Session-ID': this.sessionId
                     },
                     body: JSON.stringify({
                         board: this.board

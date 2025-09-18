@@ -227,7 +227,19 @@ class SudokuGame {
   }
 }
 
-let currentGame = new SudokuGame();
+// Store games by session ID
+const games = new Map();
+
+// Helper function to get or create a game for a session
+function getGameForSession(req) {
+  const sessionId = req.headers['x-session-id'] || req.ip || 'default';
+  
+  if (!games.has(sessionId)) {
+    games.set(sessionId, new SudokuGame());
+  }
+  
+  return games.get(sessionId);
+}
 
 app.get(BASE_PATH + '/api/new-game', (req, res) => {
   // Set cache headers for better performance
@@ -237,7 +249,7 @@ app.get(BASE_PATH + '/api/new-game', (req, res) => {
     'Expires': '0'
   });
   
-  currentGame = new SudokuGame();
+  const currentGame = getGameForSession(req);
   res.json({
     board: currentGame.originalBoard,
     message: "New game started!",
@@ -247,6 +259,7 @@ app.get(BASE_PATH + '/api/new-game', (req, res) => {
 });
 
 app.get(BASE_PATH + '/api/game-state', (req, res) => {
+  const currentGame = getGameForSession(req);
   res.json({
     board: currentGame.board
   });
@@ -273,6 +286,7 @@ app.post(BASE_PATH + '/api/validate-move', (req, res) => {
     });
   }
 
+  const currentGame = getGameForSession(req);
   const validation = currentGame.validateMove(board, row, col, num);
   
   if (validation.valid) {
@@ -298,7 +312,6 @@ app.get(BASE_PATH + '/api/hint', (req, res) => {
   const { row, col } = req.query;
   
   console.log(`Hint request: row=${row}, col=${col}`);
-  console.log(`Current game ID: ${currentGame ? 'exists' : 'null'}`);
   
   if (row === undefined || col === undefined) {
     console.log('Missing row or col parameter');
@@ -307,6 +320,7 @@ app.get(BASE_PATH + '/api/hint', (req, res) => {
     });
   }
   
+  const currentGame = getGameForSession(req);
   const r = parseInt(row);
   const c = parseInt(col);
   
@@ -342,6 +356,7 @@ app.post(BASE_PATH + '/api/validate-board', (req, res) => {
   }
   
   // Check if board is solved using the existing game logic
+  const currentGame = getGameForSession(req);
   const solved = currentGame.isSolved(board);
   
   if (solved) {
