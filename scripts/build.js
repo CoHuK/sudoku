@@ -45,10 +45,16 @@ h1 { text-align: center; color: #333; margin-bottom: 20px; }
 .difficulty-controls { margin-bottom: 20px; text-align: center; }
 .sudoku-container { display: flex; justify-content: center; margin: 20px 0; }
 .sudoku-grid { display: grid; grid-template-columns: repeat(9, 45px); grid-template-rows: repeat(9, 45px); gap: 2px; background: #333; padding: 8px; border-radius: 10px; }
+.grid-row { display: contents; }
+[role="rowgroup"] { display: contents; }
 .cell { background: white; border: 1px solid #ddd; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; cursor: pointer; }
+/* Vertical lines - works with both flat and rowgroup structure */
 .cell:nth-child(3n):not(:nth-child(9n)) { border-right: 3px solid #333; }
-.cell:nth-child(n+19):nth-child(-n+27), .cell:nth-child(n+46):nth-child(-n+54) { border-bottom: 3px solid #333; }
-/* Rowgroup selectors - use class-based approach */
+[role="rowgroup"] .cell:nth-child(3n):not(:nth-child(9n)) { border-right: 3px solid #333; }
+/* Horizontal lines - rowgroup structure selectors */
+[role="rowgroup"] [role="row"]:nth-child(3n) .cell { border-bottom: 3px solid #333; }
+[role="rowgroup"] [role="row"]:nth-child(6n) .cell { border-bottom: 3px solid #333; }
+/* Class-based selectors for better compatibility */
 .row-3 .cell, .row-6 .cell { border-bottom: 3px solid #333; }
 .cell:hover { background: #f0f8ff; }
 .cell.selected { background: #e3f2fd; border: 2px solid #2196F3; }
