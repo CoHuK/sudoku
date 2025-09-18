@@ -18,34 +18,34 @@
         <h1>Sudoku Game</h1>
         
         <div class="difficulty-controls">
-            <div class="difficulty-switch">
+            <div class="difficulty-switch" role="radiogroup" aria-label="Game difficulty mode">
                 <label class="switch-label">
-                    <input type="radio" name="difficulty" value="easy" id="easy-mode" checked>
+                    <input type="radio" name="difficulty" value="easy" id="easy-mode" checked aria-describedby="easy-desc">
                     <span>Easy Mode</span>
-                    <small>Instant validation</small>
+                    <small id="easy-desc">Instant validation</small>
                 </label>
                 <label class="switch-label">
-                    <input type="radio" name="difficulty" value="normal" id="normal-mode">
+                    <input type="radio" name="difficulty" value="normal" id="normal-mode" aria-describedby="normal-desc">
                     <span>Normal Mode</span>
-                    <small>Manual validation</small>
+                    <small id="normal-desc">Manual validation</small>
                 </label>
             </div>
         </div>
         
         <div class="game-controls">
-            <button id="new-game-btn" class="btn">New Game</button>
-            <button id="hint-btn" class="btn">Get Hint</button>
-            <button id="validate-btn" class="btn validate-btn" style="display: none;">Validate</button>
+            <button id="new-game-btn" class="btn" aria-label="Start a new Sudoku game">New Game</button>
+            <button id="hint-btn" class="btn" aria-label="Get a hint for the current cell or a random empty cell">Get Hint</button>
+            <button id="validate-btn" class="btn validate-btn hidden" aria-label="Validate the current board solution">Validate</button>
         </div>
         
-        <div class="feedback" id="feedback"></div>
+        <div class="feedback" id="feedback" role="status" aria-live="polite" aria-atomic="true"></div>
         
         <div class="sudoku-container">
-            <div class="sudoku-grid" id="sudoku-grid"></div>
+            <div class="sudoku-grid" id="sudoku-grid" role="grid" aria-label="9x9 Sudoku puzzle grid" aria-rowcount="9" aria-colcount="9"></div>
         </div>
         
         <div class="instructions">
-            <h3>How to Play:</h3>
+            <h2>How to Play:</h2>
             <ul>
                 <li>Fill each cell with numbers 1-9</li>
                 <li>Each row, column, and 3x3 box must contain all numbers 1-9</li>

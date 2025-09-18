@@ -53,10 +53,10 @@ class SudokuClient {
         
         // Show/hide validate button
         if (isEasy) {
-            this.validateBtn.style.display = 'none';
+            this.validateBtn.classList.add('hidden');
             this.validationInstruction.textContent = 'Server validation provides immediate feedback';
         } else {
-            this.validateBtn.style.display = 'inline-block';
+            this.validateBtn.classList.remove('hidden');
             this.validationInstruction.textContent = 'Click "Validate" to check your solution';
         }
         
@@ -94,19 +94,44 @@ class SudokuClient {
                 cell.className = 'cell';
                 cell.dataset.row = row;
                 cell.dataset.col = col;
+                cell.tabIndex = 0;
+                cell.setAttribute('role', 'gridcell');
+                cell.setAttribute('aria-rowindex', row + 1);
+                cell.setAttribute('aria-colindex', col + 1);
+                cell.setAttribute('aria-label', `Cell ${row + 1},${col + 1}. ${this.originalBoard[row][col] !== 0 ? 'Pre-filled' : 'Empty'}`);
                 
                 const value = this.board[row][col];
                 if (value !== 0) {
                     cell.textContent = value;
                     if (this.originalBoard[row][col] !== 0) {
                         cell.classList.add('prefilled');
+                        cell.setAttribute('aria-label', `Cell ${row + 1},${col + 1}. Pre-filled with ${value}`);
+                    } else {
+                        cell.setAttribute('aria-label', `Cell ${row + 1},${col + 1}. Contains ${value}`);
                     }
                 }
                 
                 cell.addEventListener('click', () => this.selectCell(row, col));
+                cell.addEventListener('keydown', (e) => this.handleCellKeydown(e, row, col));
                 
                 this.grid.appendChild(cell);
             }
+        }
+    }
+    
+    handleCellKeydown(e, row, col) {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            this.selectCell(row, col);
+        } else if (e.key >= '1' && e.key <= '9') {
+            e.preventDefault();
+            this.selectCell(row, col);
+            const num = parseInt(e.key);
+            this.makeMove(row, col, num);
+        } else if (e.key === 'Backspace' || e.key === 'Delete' || e.key === '0') {
+            e.preventDefault();
+            this.selectCell(row, col);
+            this.clearCell(row, col);
         }
     }
     
@@ -121,6 +146,7 @@ class SudokuClient {
         
         const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
         cell.classList.add('selected');
+        cell.focus();
         
         this.selectedCell = { row, col };
         
@@ -287,6 +313,13 @@ class SudokuClient {
     updateCell(row, col, value, state) {
         const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
         cell.textContent = value || '';
+        
+        // Update ARIA label
+        if (value) {
+            cell.setAttribute('aria-label', `Cell ${row + 1},${col + 1}. Contains ${value}`);
+        } else {
+            cell.setAttribute('aria-label', `Cell ${row + 1},${col + 1}. Empty`);
+        }
         
         cell.classList.remove('error', 'success');
         if (state) {

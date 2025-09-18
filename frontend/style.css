@@ -62,6 +62,12 @@ h1 {
     pointer-events: none;
 }
 
+.switch-label:focus-within {
+    outline: 3px solid #2196F3;
+    outline-offset: 2px;
+    border-radius: 20px;
+}
+
 .switch-label span {
     font-weight: bold;
     color: #666;
@@ -71,7 +77,7 @@ h1 {
 
 .switch-label small {
     font-size: 11px;
-    color: #999;
+    color: #666;
     transition: color 0.3s ease;
 }
 
@@ -120,6 +126,11 @@ h1 {
 
 .btn:active {
     transform: translateY(0);
+}
+
+.btn:focus {
+    outline: 3px solid #2196F3;
+    outline-offset: 2px;
 }
 
 .validate-btn {
@@ -211,6 +222,12 @@ h1 {
     position: relative;
 }
 
+.cell:focus {
+    outline: 3px solid #2196F3;
+    outline-offset: 2px;
+    background: #e3f2fd;
+}
+
 .cell:hover {
     background: #f0f8ff;
     transform: scale(1.05);
@@ -278,7 +295,7 @@ h1 {
     margin-top: 20px;
 }
 
-.instructions h3 {
+.instructions h2 {
     color: #333;
     margin-bottom: 15px;
     font-size: 1.2em;
@@ -321,6 +338,10 @@ h1 {
 .mobile-input[type=number] {
     -moz-appearance: textfield;
     appearance: textfield;
+}
+
+.hidden {
+    display: none !important;
 }
 
 @media (max-width: 768px) {
