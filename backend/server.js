@@ -54,9 +54,9 @@ app.use((req, res, next) => {
   next();
 });
 
-// Cache static files for 1 month
+// Cache static files for 1 year
 app.use(BASE_PATH, express.static(path.join(__dirname, '../frontend'), {
-  maxAge: '1m',
+  maxAge: '1y',
   etag: true,
   lastModified: true
 }));
