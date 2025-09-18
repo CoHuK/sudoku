@@ -146,7 +146,7 @@ class SudokuClient {
             const response = await fetch(`${this.basePath}/api/new-game`);
             const data = await response.json();
             
-            this.board = data.board;
+            this.board = data.board.map(row => [...row]);
             this.originalBoard = data.board.map(row => [...row]);
             
             this.renderGrid();
