@@ -501,70 +501,52 @@ class SudokuClient {
     }
     
     async getHint() {
-        if (this.selectedCell) {
-            const { row, col } = this.selectedCell;
+        if (!this.selectedCell) {
+            this.showFeedback('Please select a cell first', 'error');
+            return;
+        }
+        
+        const { row, col } = this.selectedCell;
+        
+        if (this.originalBoard[row][col] !== 0) {
+            this.showFeedback('Cannot get hint for pre-filled cells', 'error');
+            return;
+        }
+        
+        if (this.board[row][col] !== 0) {
+            this.showFeedback('Cell is already filled', 'error');
+            return;
+        }
+        
+        try {
+            console.log(`Getting hint for cell (${row}, ${col})`);
+            const response = await fetch(`${this.basePath}/api/hint?row=${row}&col=${col}`);
             
-            if (this.originalBoard[row][col] !== 0) {
-                this.showFeedback('Cannot get hint for pre-filled cells', 'error');
-                return;
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
             
-            if (this.board[row][col] !== 0) {
-                this.showFeedback('Cell is already filled', 'error');
-                return;
-            }
+            const result = await response.json();
+            console.log('Hint response:', result);
             
-            try {
-                const response = await fetch(`${this.basePath}/api/hint?row=${row}&col=${col}`);
-                const result = await response.json();
+            if (result.hint) {
+                this.showFeedback(result.message, 'info');
+                this.updateCell(row, col, result.hint, 'success');
+                this.board[row][col] = result.hint;
                 
-                if (result.hint) {
-                    this.showFeedback(result.message, 'info');
-                    this.updateCell(row, col, result.hint, 'success');
-                    this.board[row][col] = result.hint;
-                    
-                    // Save game state after applying hint
-                    this.saveGameState();
-                    
-                    // Check for completion in Easy mode
-                    if (this.isEasyMode) {
-                        await this.checkCompletionAfterHint();
-                    }
-                } else {
-                    this.showFeedback(result.message, 'error');
-                }
-            } catch (error) {
-                this.showFeedback('Failed to get hint. Please try again.', 'error');
-                console.error('Error getting hint:', error);
-            }
-        } else {
-            try {
-                const response = await fetch(`${this.basePath}/api/hint`);
-                const result = await response.json();
+                // Save game state after applying hint
+                this.saveGameState();
                 
-                if (result.hint && result.row !== undefined && result.col !== undefined) {
-                    this.showFeedback(result.message, 'info');
-                    this.selectCell(result.row, result.col);
-                    
-                    setTimeout(async () => {
-                        this.updateCell(result.row, result.col, result.hint, 'success');
-                        this.board[result.row][result.col] = result.hint;
-                        
-                        // Save game state after applying hint
-                        this.saveGameState();
-                        
-                        // Check for completion in Easy mode
-                        if (this.isEasyMode) {
-                            await this.checkCompletionAfterHint();
-                        }
-                    }, 500);
-                } else {
-                    this.showFeedback(result.message, 'info');
+                // Check for completion in Easy mode
+                if (this.isEasyMode) {
+                    await this.checkCompletionAfterHint();
                 }
-            } catch (error) {
-                this.showFeedback('Failed to get hint. Please try again.', 'error');
-                console.error('Error getting hint:', error);
+            } else {
+                this.showFeedback(result.message || 'No hint available', 'error');
             }
+        } catch (error) {
+            this.showFeedback('Failed to get hint. Please try again.', 'error');
+            console.error('Error getting hint:', error);
         }
     }
     

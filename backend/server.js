@@ -293,36 +293,33 @@ app.post(BASE_PATH + '/api/validate-move', (req, res) => {
 app.get(BASE_PATH + '/api/hint', (req, res) => {
   const { row, col } = req.query;
   
-  if (row !== undefined && col !== undefined) {
-    const r = parseInt(row);
-    const c = parseInt(col);
-    
-    if (r >= 0 && r < 9 && c >= 0 && c < 9 && currentGame.originalBoard[r][c] === 0) {
-      res.json({
-        hint: currentGame.solution[r][c],
-        message: `The correct number for this cell is ${currentGame.solution[r][c]}`
-      });
-    } else {
-      res.status(400).json({
-        message: "Invalid position or cell is pre-filled"
-      });
-    }
-  } else {
-    for (let row = 0; row < 9; row++) {
-      for (let col = 0; col < 9; col++) {
-        if (currentGame.originalBoard[row][col] === 0) {
-          return res.json({
-            hint: currentGame.solution[row][col],
-            row: row,
-            col: col,
-            message: `Try placing ${currentGame.solution[row][col]} at row ${row + 1}, column ${col + 1}`
-          });
-        }
-      }
-    }
-    
+  console.log(`Hint request: row=${row}, col=${col}`);
+  
+  if (row === undefined || col === undefined) {
+    console.log('Missing row or col parameter');
+    return res.status(400).json({
+      message: "Row and column parameters are required"
+    });
+  }
+  
+  const r = parseInt(row);
+  const c = parseInt(col);
+  
+  console.log(`Parsed coordinates: (${r}, ${c})`);
+  console.log(`Original board value at (${r}, ${c}):`, currentGame.originalBoard[r][c]);
+  console.log(`Solution value at (${r}, ${c}):`, currentGame.solution[r][c]);
+  
+  if (r >= 0 && r < 9 && c >= 0 && c < 9 && currentGame.originalBoard[r][c] === 0) {
+    const hint = currentGame.solution[r][c];
+    console.log(`Returning hint: ${hint} for cell (${r}, ${c})`);
     res.json({
-      message: "No empty cells found"
+      hint: hint,
+      message: `The correct number for this cell is ${hint}`
+    });
+  } else {
+    console.log(`Invalid hint request: position (${r}, ${c}) is invalid or pre-filled`);
+    res.status(400).json({
+      message: "Invalid position or cell is pre-filled"
     });
   }
 });
