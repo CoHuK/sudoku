@@ -20,6 +20,40 @@ app.use(cors({
   credentials: true
 }));
 
+// Set Content Security Policy to allow necessary scripts
+app.use((req, res, next) => {
+  const isDevelopment = process.env.NODE_ENV !== 'production';
+  
+  if (isDevelopment) {
+    // More permissive CSP for development
+    res.setHeader('Content-Security-Policy', 
+      "default-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
+      "style-src 'self' 'unsafe-inline'; " +
+      "img-src 'self' data: blob:; " +
+      "font-src 'self' data:; " +
+      "connect-src 'self' ws: wss:; " +
+      "frame-ancestors 'none'; " +
+      "base-uri 'self'; " +
+      "form-action 'self'"
+    );
+  } else {
+    // Stricter CSP for production
+    res.setHeader('Content-Security-Policy', 
+      "default-src 'self'; " +
+      "script-src 'self' 'unsafe-inline'; " +
+      "style-src 'self' 'unsafe-inline'; " +
+      "img-src 'self' data:; " +
+      "font-src 'self'; " +
+      "connect-src 'self'; " +
+      "frame-ancestors 'none'; " +
+      "base-uri 'self'; " +
+      "form-action 'self'"
+    );
+  }
+  next();
+});
+
 // Cache static files for 1 week
 app.use(BASE_PATH, express.static(path.join(__dirname, '../frontend'), {
   maxAge: '1w',
