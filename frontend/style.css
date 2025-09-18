@@ -6,6 +6,7 @@
 
 body {
     font-family: 'Arial', sans-serif;
+    font-display: swap;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     min-height: 100vh;
     display: flex;
@@ -249,13 +250,13 @@ h1 {
     position: relative;
 }
 
-.cell:focus {
+.cell:focus:not(.prefilled) {
     outline: 3px solid #2196F3;
     outline-offset: 2px;
     background: #e3f2fd;
 }
 
-.cell:hover {
+.cell:hover:not(.prefilled) {
     background: #f0f8ff;
     transform: scale(1.05);
 }
