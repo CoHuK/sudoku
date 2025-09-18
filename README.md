@@ -20,6 +20,10 @@ This is a demonstration project showcasing modern web development practices and 
 - **Visual Feedback**: Color-coded cells for errors, success, and selection
 - **Modern UI**: Gradient backgrounds, smooth animations, and intuitive controls
 - **Auto-solve Detection**: Automatically detects when puzzle is completed
+- **Game State Persistence**: Automatically saves your progress in browser storage
+- **Multi-User Sessions**: Each user gets their own isolated game session
+- **Session Recovery**: Handles server restarts and session expiration gracefully
+- **Hint System**: Get hints for specific cells when stuck
 
 ## 🚀 Quick Start
 
@@ -107,6 +111,9 @@ eb deploy
 - **Express.js**: Web framework
 - **CORS**: Cross-origin resource sharing
 - **Static File Serving**: Frontend asset delivery
+- **Session Management**: Multi-user session handling
+- **Game State API**: RESTful endpoints for game operations
+- **Hint System**: Server-side puzzle solving and hint generation
 
 ### Infrastructure
 
@@ -153,7 +160,47 @@ Sudoku/
    - Each column must contain numbers 1-9 without repetition
    - Each 3x3 box must contain numbers 1-9 without repetition
 4. **Get Feedback**: The game provides real-time validation
-5. **Complete the Puzzle**: Fill all cells correctly to win!
+5. **Use Hints**: Click on a cell and press the Hint button for help
+6. **Complete the Puzzle**: Fill all cells correctly to win!
+
+## 💾 Game State & Sessions
+
+### Automatic State Saving
+- **Browser Storage**: Your game progress is automatically saved in localStorage
+- **Page Refresh**: Your game state persists across browser refreshes
+- **Session Recovery**: If the server restarts, your session is automatically recovered
+- **Multi-Device**: Each browser/device maintains its own game state
+
+### Multi-User Support
+- **Session Isolation**: Each user gets their own unique session ID
+- **Concurrent Games**: Multiple users can play simultaneously without interference
+- **Session Validation**: The app automatically detects and handles invalid sessions
+- **Graceful Recovery**: If your session becomes invalid, the app starts fresh automatically
+
+### Session Management
+- **Client-Side**: Session ID is generated and stored in browser localStorage
+- **Server-Side**: Each session maintains its own game state and puzzle
+- **Automatic Cleanup**: Invalid sessions are automatically cleared and recreated
+- **No Data Loss**: Game state is preserved even during server maintenance
+
+## 🔌 API Endpoints
+
+The backend provides several RESTful endpoints for game functionality:
+
+### Game Management
+- `GET /api/new-game` - Start a new Sudoku puzzle
+- `GET /api/game-state` - Get current game state
+- `GET /api/version` - Get application version information
+
+### Game Operations
+- `POST /api/validate-move` - Validate a number placement
+- `GET /api/hint?row=X&col=Y` - Get hint for specific cell
+- `POST /api/validate-board` - Validate entire board
+
+### Session Management
+- `GET /api/session/validate` - Check if session is valid
+
+All endpoints support session-based authentication via `X-Session-ID` header.
 
 ## 🔧 Development Scripts
 
@@ -185,6 +232,7 @@ The game is fully responsive and optimized for mobile devices:
 - Mobile-optimized number input
 - Responsive grid layout
 - Swipe and tap interactions
+- Persistent game state across mobile sessions
 
 ## 🚀 Deployment Architecture
 
