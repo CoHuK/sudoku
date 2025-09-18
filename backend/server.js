@@ -25,7 +25,7 @@ app.use((req, res, next) => {
   const isDevelopment = process.env.NODE_ENV !== 'production';
   
   if (isDevelopment) {
-    // Very permissive CSP for development
+    // Development CSP - allows unsafe-eval for development tools and extensions
     res.setHeader('Content-Security-Policy', 
       "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob:; " +
       "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
@@ -38,10 +38,10 @@ app.use((req, res, next) => {
       "form-action 'self'"
     );
   } else {
-    // Production CSP - allows necessary resources
+    // Production CSP - strict security without unsafe-eval
     res.setHeader('Content-Security-Policy', 
-      "default-src 'self' 'unsafe-inline' 'unsafe-eval' data:; " +
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
+      "default-src 'self' 'unsafe-inline' data:; " +
+      "script-src 'self' 'unsafe-inline'; " +
       "style-src 'self' 'unsafe-inline' data:; " +
       "img-src 'self' data:; " +
       "font-src 'self' data:; " +
