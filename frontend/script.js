@@ -107,6 +107,9 @@ class SudokuClient {
             // Create row container
             const rowElement = document.createElement('div');
             rowElement.className = 'grid-row';
+            if (row === 2 || row === 5) { // 3rd and 6th rows (0-indexed)
+                rowElement.classList.add(`row-${row + 1}`);
+            }
             rowElement.setAttribute('role', 'row');
             rowElement.setAttribute('aria-rowindex', row + 1);
             
