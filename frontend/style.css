@@ -211,12 +211,17 @@ h1 {
     padding: 8px;
     border-radius: 10px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-    width: 421px; /* Fixed width: 9 * 45px + 8 * 2px + 16px padding */
-    height: 421px; /* Fixed height: 9 * 45px + 8 * 2px + 16px padding */
-    min-height: 421px; /* Prevent collapse before JS loads */
+    width: 437px; /* Corrected width: 9 * 45px + 8 * 2px + 2 * 8px padding */
+    height: 437px; /* Corrected height: 9 * 45px + 8 * 2px + 2 * 8px padding */
+    min-height: 437px; /* Prevent collapse before JS loads */
+    overflow: hidden; /* Prevent grid overflow */
 }
 
 .grid-row {
+    display: contents;
+}
+
+[role="rowgroup"] {
     display: contents;
 }
 
