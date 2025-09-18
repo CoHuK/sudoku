@@ -89,6 +89,12 @@ class SudokuClient {
         this.grid.innerHTML = '';
         
         for (let row = 0; row < 9; row++) {
+            // Create row container
+            const rowElement = document.createElement('div');
+            rowElement.className = 'grid-row';
+            rowElement.setAttribute('role', 'row');
+            rowElement.setAttribute('aria-rowindex', row + 1);
+            
             for (let col = 0; col < 9; col++) {
                 const cell = document.createElement('div');
                 cell.className = 'cell';
@@ -114,8 +120,10 @@ class SudokuClient {
                 cell.addEventListener('click', () => this.selectCell(row, col));
                 cell.addEventListener('keydown', (e) => this.handleCellKeydown(e, row, col));
                 
-                this.grid.appendChild(cell);
+                rowElement.appendChild(cell);
             }
+            
+            this.grid.appendChild(rowElement);
         }
     }
     
@@ -145,13 +153,15 @@ class SudokuClient {
         });
         
         const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
-        cell.classList.add('selected');
-        cell.focus();
-        
-        this.selectedCell = { row, col };
-        
-        // Show mobile keyboard input
-        this.showMobileInput(cell, row, col);
+        if (cell) {
+            cell.classList.add('selected');
+            cell.focus();
+            
+            this.selectedCell = { row, col };
+            
+            // Show mobile keyboard input
+            this.showMobileInput(cell, row, col);
+        }
     }
     
     showMobileInput(cell, row, col) {

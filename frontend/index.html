@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Play Sudoku online with instant validation, hints, and two difficulty modes. Free, fast, and accessible Sudoku puzzle game with beautiful design and keyboard navigation support.">
+    <meta name="keywords" content="sudoku, puzzle, game, online, free, instant validation, hints, accessible, keyboard navigation">
+    <meta name="author" content="Sudoku Game">
+    <meta name="robots" content="index, follow">
     <title>Sudoku Game</title>
     
     <!-- Favicon -->
@@ -41,7 +45,9 @@
         <div class="feedback" id="feedback" role="status" aria-live="polite" aria-atomic="true"></div>
         
         <div class="sudoku-container">
-            <div class="sudoku-grid" id="sudoku-grid" role="grid" aria-label="9x9 Sudoku puzzle grid" aria-rowcount="9" aria-colcount="9"></div>
+            <div class="sudoku-grid" id="sudoku-grid" role="grid" aria-label="9x9 Sudoku puzzle grid" aria-rowcount="9" aria-colcount="9">
+                <!-- Grid rows will be dynamically generated here -->
+            </div>
         </div>
         
         <div class="instructions">
