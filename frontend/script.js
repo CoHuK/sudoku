@@ -88,6 +88,11 @@ class SudokuClient {
     renderGrid() {
         this.grid.innerHTML = '';
         
+        // Add ARIA roles to grid
+        this.grid.setAttribute('role', 'grid');
+        this.grid.setAttribute('aria-rowcount', '9');
+        this.grid.setAttribute('aria-colcount', '9');
+        
         // Remove loading placeholder
         const loadingElement = document.getElementById('grid-loading');
         if (loadingElement) {
