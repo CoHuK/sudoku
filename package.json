@@ -1,6 +1,6 @@
 {
   "name": "sudoku-game",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "description": "A Sudoku game with JavaScript frontend and Node.js backend",
   "scripts": {
     "start": "node backend/server.js",
