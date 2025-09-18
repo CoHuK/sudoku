@@ -1,14 +1,26 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const compression = require('compression');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const BASE_PATH = process.env.BASE_PATH || '';
 
-app.use(cors());
-app.use(express.json());
-app.use(BASE_PATH, express.static(path.join(__dirname, '../frontend')));
+// Enable compression and caching
+app.use(compression());
+app.use(express.json({ limit: '10mb' }));
+app.use(cors({
+  origin: process.env.NODE_ENV === 'production' ? false : true,
+  credentials: true
+}));
+
+// Cache static files for 1 week
+app.use(BASE_PATH, express.static(path.join(__dirname, '../frontend'), {
+  maxAge: '1w',
+  etag: true,
+  lastModified: true
+}));
 
 class SudokuGame {
   constructor() {
@@ -98,15 +110,24 @@ class SudokuGame {
     const completed = this.generateCompletedBoard();
     const puzzle = this.deepCopy(completed);
     
-    const cellsToRemove = 40 + Math.floor(Math.random() * 10);
+    // Pre-calculate all cell positions to avoid repeated random generation
+    const cells = [];
+    for (let row = 0; row < 9; row++) {
+      for (let col = 0; col < 9; col++) {
+        cells.push({ row, col });
+      }
+    }
+    
+    // Shuffle cells once
+    for (let i = cells.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [cells[i], cells[j]] = [cells[j], cells[i]];
+    }
+    
+    const cellsToRemove = Math.min(40 + Math.floor(Math.random() * 10), cells.length);
     
     for (let i = 0; i < cellsToRemove; i++) {
-      let row, col;
-      do {
-        row = Math.floor(Math.random() * 9);
-        col = Math.floor(Math.random() * 9);
-      } while (puzzle[row][col] === 0);
-      
+      const { row, col } = cells[i];
       puzzle[row][col] = 0;
     }
     
@@ -153,6 +174,13 @@ class SudokuGame {
 let currentGame = new SudokuGame();
 
 app.get(BASE_PATH + '/api/new-game', (req, res) => {
+  // Set cache headers for better performance
+  res.set({
+    'Cache-Control': 'no-cache, no-store, must-revalidate',
+    'Pragma': 'no-cache',
+    'Expires': '0'
+  });
+  
   currentGame = new SudokuGame();
   res.json({
     board: currentGame.originalBoard,

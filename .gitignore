@@ -8,3 +8,6 @@ npm-debug.log
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
+frontend/index.optimized.html
+frontend/script.min.js
+frontend/style.min.css
