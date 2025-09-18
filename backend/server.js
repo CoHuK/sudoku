@@ -25,11 +25,11 @@ app.use((req, res, next) => {
   const isDevelopment = process.env.NODE_ENV !== 'production';
   
   if (isDevelopment) {
-    // More permissive CSP for development
+    // Very permissive CSP for development
     res.setHeader('Content-Security-Policy', 
-      "default-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
+      "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob:; " +
       "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
-      "style-src 'self' 'unsafe-inline'; " +
+      "style-src 'self' 'unsafe-inline' data:; " +
       "img-src 'self' data: blob:; " +
       "font-src 'self' data:; " +
       "connect-src 'self' ws: wss:; " +
@@ -38,13 +38,13 @@ app.use((req, res, next) => {
       "form-action 'self'"
     );
   } else {
-    // Stricter CSP for production
+    // Production CSP - allows necessary resources
     res.setHeader('Content-Security-Policy', 
-      "default-src 'self'; " +
+      "default-src 'self' 'unsafe-inline' data:; " +
       "script-src 'self' 'unsafe-inline'; " +
-      "style-src 'self' 'unsafe-inline'; " +
+      "style-src 'self' 'unsafe-inline' data:; " +
       "img-src 'self' data:; " +
-      "font-src 'self'; " +
+      "font-src 'self' data:; " +
       "connect-src 'self'; " +
       "frame-ancestors 'none'; " +
       "base-uri 'self'; " +
