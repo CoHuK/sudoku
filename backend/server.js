@@ -272,7 +272,7 @@ app.post(BASE_PATH + '/api/validate-move', (req, res) => {
   const validation = currentGame.validateMove(board, row, col, num);
   
   if (validation.valid) {
-    currentGame.board = board;
+    // Only update the specific cell, don't replace the entire board
     currentGame.board[row][col] = num;
     
     const solved = currentGame.isSolved(currentGame.board);
