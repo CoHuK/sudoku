@@ -99,108 +99,6 @@ h1 { text-align: center; color: #333; margin-bottom: 20px; }
 
 const minifiedCritical = minifyCSS(criticalCSS);
 
-// Create static ARIA-compliant grid structure for Lighthouse
-const staticGridHTML = `
-                <div class="grid-row" role="row" aria-rowindex="1">
-                    <div class="cell" role="gridcell" aria-rowindex="1" aria-colindex="1" tabindex="0" aria-label="Cell 1,1. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="1" aria-colindex="2" tabindex="0" aria-label="Cell 1,2. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="1" aria-colindex="3" tabindex="0" aria-label="Cell 1,3. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="1" aria-colindex="4" tabindex="0" aria-label="Cell 1,4. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="1" aria-colindex="5" tabindex="0" aria-label="Cell 1,5. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="1" aria-colindex="6" tabindex="0" aria-label="Cell 1,6. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="1" aria-colindex="7" tabindex="0" aria-label="Cell 1,7. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="1" aria-colindex="8" tabindex="0" aria-label="Cell 1,8. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="1" aria-colindex="9" tabindex="0" aria-label="Cell 1,9. Empty"></div>
-                </div>
-                <div class="grid-row" role="row" aria-rowindex="2">
-                    <div class="cell" role="gridcell" aria-rowindex="2" aria-colindex="1" tabindex="0" aria-label="Cell 2,1. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="2" aria-colindex="2" tabindex="0" aria-label="Cell 2,2. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="2" aria-colindex="3" tabindex="0" aria-label="Cell 2,3. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="2" aria-colindex="4" tabindex="0" aria-label="Cell 2,4. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="2" aria-colindex="5" tabindex="0" aria-label="Cell 2,5. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="2" aria-colindex="6" tabindex="0" aria-label="Cell 2,6. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="2" aria-colindex="7" tabindex="0" aria-label="Cell 2,7. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="2" aria-colindex="8" tabindex="0" aria-label="Cell 2,8. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="2" aria-colindex="9" tabindex="0" aria-label="Cell 2,9. Empty"></div>
-                </div>
-                <div class="grid-row" role="row" aria-rowindex="3">
-                    <div class="cell" role="gridcell" aria-rowindex="3" aria-colindex="1" tabindex="0" aria-label="Cell 3,1. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="3" aria-colindex="2" tabindex="0" aria-label="Cell 3,2. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="3" aria-colindex="3" tabindex="0" aria-label="Cell 3,3. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="3" aria-colindex="4" tabindex="0" aria-label="Cell 3,4. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="3" aria-colindex="5" tabindex="0" aria-label="Cell 3,5. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="3" aria-colindex="6" tabindex="0" aria-label="Cell 3,6. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="3" aria-colindex="7" tabindex="0" aria-label="Cell 3,7. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="3" aria-colindex="8" tabindex="0" aria-label="Cell 3,8. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="3" aria-colindex="9" tabindex="0" aria-label="Cell 3,9. Empty"></div>
-                </div>
-                <div class="grid-row" role="row" aria-rowindex="4">
-                    <div class="cell" role="gridcell" aria-rowindex="4" aria-colindex="1" tabindex="0" aria-label="Cell 4,1. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="4" aria-colindex="2" tabindex="0" aria-label="Cell 4,2. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="4" aria-colindex="3" tabindex="0" aria-label="Cell 4,3. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="4" aria-colindex="4" tabindex="0" aria-label="Cell 4,4. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="4" aria-colindex="5" tabindex="0" aria-label="Cell 4,5. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="4" aria-colindex="6" tabindex="0" aria-label="Cell 4,6. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="4" aria-colindex="7" tabindex="0" aria-label="Cell 4,7. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="4" aria-colindex="8" tabindex="0" aria-label="Cell 4,8. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="4" aria-colindex="9" tabindex="0" aria-label="Cell 4,9. Empty"></div>
-                </div>
-                <div class="grid-row" role="row" aria-rowindex="5">
-                    <div class="cell" role="gridcell" aria-rowindex="5" aria-colindex="1" tabindex="0" aria-label="Cell 5,1. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="5" aria-colindex="2" tabindex="0" aria-label="Cell 5,2. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="5" aria-colindex="3" tabindex="0" aria-label="Cell 5,3. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="5" aria-colindex="4" tabindex="0" aria-label="Cell 5,4. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="5" aria-colindex="5" tabindex="0" aria-label="Cell 5,5. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="5" aria-colindex="6" tabindex="0" aria-label="Cell 5,6. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="5" aria-colindex="7" tabindex="0" aria-label="Cell 5,7. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="5" aria-colindex="8" tabindex="0" aria-label="Cell 5,8. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="5" aria-colindex="9" tabindex="0" aria-label="Cell 5,9. Empty"></div>
-                </div>
-                <div class="grid-row" role="row" aria-rowindex="6">
-                    <div class="cell" role="gridcell" aria-rowindex="6" aria-colindex="1" tabindex="0" aria-label="Cell 6,1. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="6" aria-colindex="2" tabindex="0" aria-label="Cell 6,2. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="6" aria-colindex="3" tabindex="0" aria-label="Cell 6,3. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="6" aria-colindex="4" tabindex="0" aria-label="Cell 6,4. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="6" aria-colindex="5" tabindex="0" aria-label="Cell 6,5. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="6" aria-colindex="6" tabindex="0" aria-label="Cell 6,6. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="6" aria-colindex="7" tabindex="0" aria-label="Cell 6,7. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="6" aria-colindex="8" tabindex="0" aria-label="Cell 6,8. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="6" aria-colindex="9" tabindex="0" aria-label="Cell 6,9. Empty"></div>
-                </div>
-                <div class="grid-row" role="row" aria-rowindex="7">
-                    <div class="cell" role="gridcell" aria-rowindex="7" aria-colindex="1" tabindex="0" aria-label="Cell 7,1. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="7" aria-colindex="2" tabindex="0" aria-label="Cell 7,2. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="7" aria-colindex="3" tabindex="0" aria-label="Cell 7,3. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="7" aria-colindex="4" tabindex="0" aria-label="Cell 7,4. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="7" aria-colindex="5" tabindex="0" aria-label="Cell 7,5. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="7" aria-colindex="6" tabindex="0" aria-label="Cell 7,6. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="7" aria-colindex="7" tabindex="0" aria-label="Cell 7,7. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="7" aria-colindex="8" tabindex="0" aria-label="Cell 7,8. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="7" aria-colindex="9" tabindex="0" aria-label="Cell 7,9. Empty"></div>
-                </div>
-                <div class="grid-row" role="row" aria-rowindex="8">
-                    <div class="cell" role="gridcell" aria-rowindex="8" aria-colindex="1" tabindex="0" aria-label="Cell 8,1. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="8" aria-colindex="2" tabindex="0" aria-label="Cell 8,2. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="8" aria-colindex="3" tabindex="0" aria-label="Cell 8,3. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="8" aria-colindex="4" tabindex="0" aria-label="Cell 8,4. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="8" aria-colindex="5" tabindex="0" aria-label="Cell 8,5. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="8" aria-colindex="6" tabindex="0" aria-label="Cell 8,6. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="8" aria-colindex="7" tabindex="0" aria-label="Cell 8,7. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="8" aria-colindex="8" tabindex="0" aria-label="Cell 8,8. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="8" aria-colindex="9" tabindex="0" aria-label="Cell 8,9. Empty"></div>
-                </div>
-                <div class="grid-row" role="row" aria-rowindex="9">
-                    <div class="cell" role="gridcell" aria-rowindex="9" aria-colindex="1" tabindex="0" aria-label="Cell 9,1. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="9" aria-colindex="2" tabindex="0" aria-label="Cell 9,2. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="9" aria-colindex="3" tabindex="0" aria-label="Cell 9,3. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="9" aria-colindex="4" tabindex="0" aria-label="Cell 9,4. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="9" aria-colindex="5" tabindex="0" aria-label="Cell 9,5. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="9" aria-colindex="6" tabindex="0" aria-label="Cell 9,6. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="9" aria-colindex="7" tabindex="0" aria-label="Cell 9,7. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="9" aria-colindex="8" tabindex="0" aria-label="Cell 9,8. Empty"></div>
-                    <div class="cell" role="gridcell" aria-rowindex="9" aria-colindex="9" tabindex="0" aria-label="Cell 9,9. Empty"></div>
-                </div>`;
-
 // Create optimized HTML with inlined critical CSS
 const optimizedHTML = indexContent
     .replace(/<link rel="stylesheet" href="style\.css">/g, '')
@@ -209,8 +107,7 @@ const optimizedHTML = indexContent
     .replace(/<link rel="preload" href="style\.css" as="style" onload="this\.onload=null;this\.rel='stylesheet'">/g, '')
     .replace(/<noscript><link rel="stylesheet" href="style.css"><\/noscript>/g, '')
     .replace(/<title>Sudoku Game<\/title>/, `<title>Sudoku Game</title>
-    <style>${minifiedCritical}</style>`)
-    .replace(/<!-- Grid rows will be dynamically generated here -->/, staticGridHTML);
+    <style>${minifiedCritical}</style>`);
 
 // Write minified files
 fs.writeFileSync(path.join(__dirname, '..', 'frontend', 'script.min.js'), minifiedScript);
