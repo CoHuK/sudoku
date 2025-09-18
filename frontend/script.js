@@ -13,7 +13,7 @@ class SudokuClient {
         this.originalBoard = [];
         this.selectedCell = null;
         this.isEasyMode = true; // Default to easy mode
-        this.sessionId = this.generateSessionId();
+        this.sessionId = this.getOrCreateSessionId();
         
         // Handle base path for subdirectory deployment
         this.basePath = window.location.pathname.replace(/\/$/, '') || '';
@@ -35,7 +35,17 @@ class SudokuClient {
         return 'session_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
     }
     
-    init() {
+    getOrCreateSessionId() {
+        const stored = localStorage.getItem('sudokuSessionId');
+        if (stored) {
+            return stored;
+        }
+        const newSessionId = this.generateSessionId();
+        localStorage.setItem('sudokuSessionId', newSessionId);
+        return newSessionId;
+    }
+    
+    async init() {
         this.newGameBtn.addEventListener('click', () => this.newGame());
         this.hintBtn.addEventListener('click', () => this.getHint());
         this.validateBtn.addEventListener('click', () => this.validateBoard());
@@ -53,6 +63,15 @@ class SudokuClient {
         });
         
         this.setDifficultyMode(true); // Start in easy mode
+        
+        // Check if session is still valid
+        const isSessionValid = await this.checkSessionValidity();
+        if (!isSessionValid) {
+            console.log('Session is invalid, clearing localStorage and starting fresh...');
+            this.clearAllData();
+            this.sessionId = this.generateSessionId();
+            localStorage.setItem('sudokuSessionId', this.sessionId);
+        }
         
         // Try to load existing game state, otherwise start new game
         if (!this.loadGameState()) {
@@ -138,6 +157,40 @@ class SudokuClient {
         localStorage.removeItem('sudokuGameState');
     }
     
+    clearAllData() {
+        localStorage.removeItem('sudokuGameState');
+        localStorage.removeItem('sudokuSessionId');
+    }
+    
+    async checkSessionValidity() {
+        try {
+            const response = await fetch(`${this.basePath}/api/session/validate`, {
+                headers: {
+                    'X-Session-ID': this.sessionId
+                }
+            });
+            const data = await response.json();
+            return data.valid;
+        } catch (error) {
+            console.error('Error checking session validity:', error);
+            return false;
+        }
+    }
+    
+    async handleSessionError(response, retryFunction) {
+        if (response.status === 404 || response.status === 400) {
+            console.log('Server doesn\'t recognize session, clearing localStorage and retrying...');
+            this.clearAllData();
+            // Generate new session ID
+            this.sessionId = this.generateSessionId();
+            localStorage.setItem('sudokuSessionId', this.sessionId);
+            
+            // Retry the function
+            return await retryFunction();
+        }
+        return null;
+    }
+    
     async newGame() {
         try {
             this.showFeedback('Loading new game...', 'info');
@@ -153,6 +206,38 @@ class SudokuClient {
                     'X-Session-ID': this.sessionId
                 }
             });
+            
+            // Check if server doesn't recognize our session (404 or similar)
+            if (response.status === 404 || response.status === 400) {
+                console.log('Server doesn\'t recognize session, clearing localStorage and retrying...');
+                this.clearAllData();
+                // Generate new session ID
+                this.sessionId = this.generateSessionId();
+                localStorage.setItem('sudokuSessionId', this.sessionId);
+                
+                // Retry with new session
+                const retryResponse = await fetch(`${this.basePath}/api/new-game`, {
+                    headers: {
+                        'X-Session-ID': this.sessionId
+                    }
+                });
+                const retryData = await retryResponse.json();
+                
+                this.board = retryData.board.map(row => [...row]);
+                this.originalBoard = retryData.board.map(row => [...row]);
+                
+                this.renderGrid();
+                this.showFeedback(retryData.message, 'success');
+                
+                // Save the new game state
+                this.saveGameState();
+                return;
+            }
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
             const data = await response.json();
             
             this.board = data.board.map(row => [...row]);
@@ -536,6 +621,39 @@ class SudokuClient {
                     'X-Session-ID': this.sessionId
                 }
             });
+            
+            // Handle session error
+            const sessionErrorResult = await this.handleSessionError(response, async () => {
+                const retryResponse = await fetch(`${this.basePath}/api/hint?row=${row}&col=${col}`, {
+                    headers: {
+                        'X-Session-ID': this.sessionId
+                    }
+                });
+                if (!retryResponse.ok) {
+                    throw new Error(`HTTP ${retryResponse.status}: ${retryResponse.statusText}`);
+                }
+                return await retryResponse.json();
+            });
+            
+            if (sessionErrorResult) {
+                const result = sessionErrorResult;
+                if (result.hint) {
+                    this.showFeedback(result.message, 'info');
+                    this.updateCell(row, col, result.hint, 'success');
+                    this.board[row][col] = result.hint;
+
+                    // Save game state after applying hint
+                    this.saveGameState();
+
+                    // Check for completion in Easy mode
+                    if (this.isEasyMode) {
+                        await this.checkCompletionAfterHint();
+                    }
+                } else {
+                    this.showFeedback(result.message || 'No hint available', 'error');
+                }
+                return;
+            }
             
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);

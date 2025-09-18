@@ -249,7 +249,11 @@ app.get(BASE_PATH + '/api/new-game', (req, res) => {
     'Expires': '0'
   });
   
-  const currentGame = getGameForSession(req);
+  // Create a new game for this session
+  const sessionId = req.headers['x-session-id'] || req.ip || 'default';
+  const currentGame = new SudokuGame();
+  games.set(sessionId, currentGame);
+  
   res.json({
     board: currentGame.originalBoard,
     message: "New game started!",
@@ -273,6 +277,16 @@ app.get(BASE_PATH + '/api/version', (req, res) => {
     description: packageJson.description,
     nodeVersion: process.version,
     environment: process.env.NODE_ENV || 'development'
+  });
+});
+
+app.get(BASE_PATH + '/api/session/validate', (req, res) => {
+  const sessionId = req.headers['x-session-id'] || req.ip || 'default';
+  const sessionExists = games.has(sessionId);
+  
+  res.json({
+    valid: sessionExists,
+    sessionId: sessionId
   });
 });
 
