@@ -96,7 +96,7 @@ echo -e "${BLUE}☁️  Deploying to AWS Elastic Beanstalk...${NC}"
 echo -e "${YELLOW}   Version: ${VERSION}${NC}"
 echo -e "${YELLOW}   Build Tag: ${BUILD_TAG}${NC}"
 
-if ! eb deploy --version $BUILD_TAG; then
+if ! eb deploy; then
     echo -e "${RED}❌ EB deployment failed${NC}"
     exit 1
 fi
