@@ -205,8 +205,8 @@ h1 {
 
 .sudoku-grid {
     display: grid;
-    grid-template-columns: repeat(9, min(45px, calc((100vw - 120px) / 9)));
-    grid-template-rows: repeat(9, min(45px, calc((100vw - 120px) / 9)));
+    grid-template-columns: repeat(9, min(45px, calc((100vw - 100px) / 9)));
+    grid-template-rows: repeat(9, min(45px, calc((100vw - 100px) / 9)));
     gap: 2px;
     background: #333;
     padding: 8px;
@@ -252,8 +252,7 @@ h1 {
 }
 
 .cell:focus:not(.prefilled) {
-    outline: 3px solid #2196F3;
-    outline-offset: 2px;
+    outline: none;
     background: #e3f2fd;
 }
 
@@ -390,17 +389,19 @@ h1 {
 
 @media (max-width: 768px) {
     .container {
-        padding: 20px;
-        margin: 10px;
+        padding: 15px;
+        margin: 5px;
     }
     
     h1 {
         font-size: 2em;
+        margin-bottom: 20px;
     }
     
     .sudoku-grid {
-        grid-template-columns: repeat(9, min(35px, calc((100vw - 80px) / 9)));
-        grid-template-rows: repeat(9, min(35px, calc((100vw - 80px) / 9)));
+        grid-template-columns: repeat(9, min(32px, calc((100vw - 60px) / 9)));
+        grid-template-rows: repeat(9, min(32px, calc((100vw - 60px) / 9)));
+        padding: 6px;
     }
     
     .cell {
