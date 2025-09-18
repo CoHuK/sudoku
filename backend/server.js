@@ -69,7 +69,7 @@ app.use((req, res, next) => {
 
 // Cache static files - different settings for dev vs production
 app.use(BASE_PATH, express.static(path.join(__dirname, '../frontend'), {
-  maxAge: process.env.NODE_ENV === 'production' ? '1y' : '0',  // No cache in development, 1 year in production
+  maxAge: process.env.NODE_ENV === 'production' ? '1h' : '0',  // No cache in development, 1 hour in production
   etag: true,
   lastModified: true
 }));
@@ -272,8 +272,10 @@ app.post(BASE_PATH + '/api/validate-move', (req, res) => {
   const validation = currentGame.validateMove(board, row, col, num);
   
   if (validation.valid) {
-    // Only update the specific cell, don't replace the entire board
-    currentGame.board[row][col] = num;
+    // Synchronize server board state with client's current state
+    // The client sends the board with the target cell cleared, so we need to restore it
+    currentGame.board = board.map(row => [...row]); // Copy the client's board state
+    currentGame.board[row][col] = num; // Add the validated move
     
     const solved = currentGame.isSolved(currentGame.board);
     

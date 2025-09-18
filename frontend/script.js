@@ -525,6 +525,11 @@ class SudokuClient {
                     
                     // Save game state after applying hint
                     this.saveGameState();
+                    
+                    // Check for completion in Easy mode
+                    if (this.isEasyMode) {
+                        await this.checkCompletionAfterHint();
+                    }
                 } else {
                     this.showFeedback(result.message, 'error');
                 }
@@ -541,12 +546,17 @@ class SudokuClient {
                     this.showFeedback(result.message, 'info');
                     this.selectCell(result.row, result.col);
                     
-                    setTimeout(() => {
+                    setTimeout(async () => {
                         this.updateCell(result.row, result.col, result.hint, 'success');
                         this.board[result.row][result.col] = result.hint;
                         
                         // Save game state after applying hint
                         this.saveGameState();
+                        
+                        // Check for completion in Easy mode
+                        if (this.isEasyMode) {
+                            await this.checkCompletionAfterHint();
+                        }
                     }, 500);
                 } else {
                     this.showFeedback(result.message, 'info');
@@ -554,6 +564,48 @@ class SudokuClient {
             } catch (error) {
                 this.showFeedback('Failed to get hint. Please try again.', 'error');
                 console.error('Error getting hint:', error);
+            }
+        }
+    }
+    
+    async checkCompletionAfterHint() {
+        // Check if the board is complete (no empty cells)
+        let isComplete = true;
+        for (let row = 0; row < 9; row++) {
+            for (let col = 0; col < 9; col++) {
+                if (this.board[row][col] === 0) {
+                    isComplete = false;
+                    break;
+                }
+            }
+            if (!isComplete) break;
+        }
+        
+        if (isComplete) {
+            // Validate the complete board to check if it's solved correctly
+            try {
+                const response = await fetch(`${this.basePath}/api/validate-board`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        board: this.board
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.valid && result.solved) {
+                    this.showFeedback('🎉 Congratulations! Puzzle solved!', 'solved');
+                    this.celebrateSolution();
+                    // Clear saved state when puzzle is solved
+                    this.clearGameState();
+                }
+            } catch (error) {
+                console.error('Error checking completion after hint:', error);
+                // If validation fails, at least save the current state
+                this.saveGameState();
             }
         }
     }
