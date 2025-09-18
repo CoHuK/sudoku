@@ -79,6 +79,10 @@ class SudokuGame {
     this.originalBoard = this.generatePuzzle();
     this.board = this.deepCopy(this.originalBoard);
     this.solution = this.solvePuzzle(this.deepCopy(this.originalBoard));
+    
+    // Freeze originalBoard to prevent accidental modifications
+    Object.freeze(this.originalBoard);
+    this.originalBoard.forEach(row => Object.freeze(row));
   }
 
   generateEmptyBoard() {
@@ -294,6 +298,7 @@ app.get(BASE_PATH + '/api/hint', (req, res) => {
   const { row, col } = req.query;
   
   console.log(`Hint request: row=${row}, col=${col}`);
+  console.log(`Current game ID: ${currentGame ? 'exists' : 'null'}`);
   
   if (row === undefined || col === undefined) {
     console.log('Missing row or col parameter');
@@ -308,6 +313,7 @@ app.get(BASE_PATH + '/api/hint', (req, res) => {
   console.log(`Parsed coordinates: (${r}, ${c})`);
   console.log(`Original board value at (${r}, ${c}):`, currentGame.originalBoard[r][c]);
   console.log(`Solution value at (${r}, ${c}):`, currentGame.solution[r][c]);
+  console.log(`Is originalBoard frozen:`, Object.isFrozen(currentGame.originalBoard));
   
   if (r >= 0 && r < 9 && c >= 0 && c < 9 && currentGame.originalBoard[r][c] === 0) {
     const hint = currentGame.solution[r][c];
@@ -318,6 +324,7 @@ app.get(BASE_PATH + '/api/hint', (req, res) => {
     });
   } else {
     console.log(`Invalid hint request: position (${r}, ${c}) is invalid or pre-filled`);
+    console.log(`Original board at (${r}, ${c}):`, currentGame.originalBoard[r][c]);
     res.status(400).json({
       message: "Invalid position or cell is pre-filled"
     });
