@@ -94,6 +94,10 @@ class SudokuClient {
             loadingElement.remove();
         }
         
+        // Create rowgroup container
+        const rowGroup = document.createElement('div');
+        rowGroup.setAttribute('role', 'rowgroup');
+        
         for (let row = 0; row < 9; row++) {
             // Create row container
             const rowElement = document.createElement('div');
@@ -129,8 +133,10 @@ class SudokuClient {
                 rowElement.appendChild(cell);
             }
             
-            this.grid.appendChild(rowElement);
+            rowGroup.appendChild(rowElement);
         }
+        
+        this.grid.appendChild(rowGroup);
     }
     
     handleCellKeydown(e, row, col) {
