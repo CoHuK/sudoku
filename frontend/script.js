@@ -88,6 +88,12 @@ class SudokuClient {
     renderGrid() {
         this.grid.innerHTML = '';
         
+        // Remove loading placeholder
+        const loadingElement = document.getElementById('grid-loading');
+        if (loadingElement) {
+            loadingElement.remove();
+        }
+        
         for (let row = 0; row < 9; row++) {
             // Create row container
             const rowElement = document.createElement('div');

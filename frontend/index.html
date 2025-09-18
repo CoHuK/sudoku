@@ -9,6 +9,10 @@
     <meta name="robots" content="index, follow">
     <title>Sudoku Game</title>
     
+    <!-- Preload critical resources -->
+    <link rel="preload" href="style.css" as="style">
+    <link rel="preload" href="script.js" as="script">
+    
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
@@ -46,6 +50,7 @@
         
         <div class="sudoku-container">
             <div class="sudoku-grid" id="sudoku-grid" role="grid" aria-label="9x9 Sudoku puzzle grid" aria-rowcount="9" aria-colcount="9">
+                <div class="grid-loading" id="grid-loading">Loading puzzle...</div>
                 <!-- Grid rows will be dynamically generated here -->
             </div>
         </div>

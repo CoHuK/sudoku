@@ -21,6 +21,8 @@ body {
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
     max-width: 600px;
     width: 100%;
+    contain: layout;
+    min-height: 600px; /* Prevent layout shift during loading */
 }
 
 h1 {
@@ -29,6 +31,8 @@ h1 {
     margin-bottom: 30px;
     font-size: 2.5em;
     font-weight: bold;
+    font-display: swap;
+    contain: layout;
 }
 
 .difficulty-controls {
@@ -207,10 +211,24 @@ h1 {
     padding: 8px;
     border-radius: 10px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    width: 421px; /* Fixed width: 9 * 45px + 8 * 2px + 16px padding */
+    height: 421px; /* Fixed height: 9 * 45px + 8 * 2px + 16px padding */
+    min-height: 421px; /* Prevent collapse before JS loads */
 }
 
 .grid-row {
     display: contents;
+}
+
+.grid-loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    z-index: 1;
 }
 
 .cell {
