@@ -38,7 +38,8 @@ show_help() {
     echo "  $0 prepare        # Bump patch and prepare for deployment"
     echo "  $0 show           # Show current version"
     echo ""
-    echo "Note: Run from project root: ./scripts/version.sh [command]"
+    echo "Note:"
+    echo "  - Run from project root: ./scripts/version.sh [command]"
 }
 
 # Function to bump version
@@ -75,10 +76,10 @@ bump_version() {
     
     # Commit version change
     git add package.json package-lock.json
-    git commit -m "chore: bump version to ${new_version}"
+    git commit -S -m "chore: bump version to ${new_version}"
     
-    # Create git tag
-    git tag "v${new_version}"
+    # Create signed git tag
+    git tag -s "v${new_version}" -m "Release version ${new_version}"
     
     echo -e "${GREEN}✅ Git tag created: v${new_version}${NC}"
     
