@@ -27,6 +27,99 @@ This is a demonstration project showcasing modern web development practices and 
 
 ## 🚀 Quick Start
 
+### Diagram
+
+```mermaid
+flowchart TD
+    %% User Layer
+    Browser["User's Browser"]:::frontend
+
+    %% CDN
+    CDN["Cloudflare CDN"]:::frontend
+
+    %% AWS Cloud
+    subgraph "AWS Elastic Beanstalk & Compute"
+        LB["EB Load Balancer\n(Elastic Beanstalk)"]:::infra
+        EC2["EC2 Instance"]:::infra
+        Container["Docker Container\n(Node.js/Express)"]:::infra
+    end
+
+    %% Build & Deployment Pipeline
+    subgraph "Build & Deployment Pipeline"
+        ScriptsBuild["build.js"]:::pipeline
+        ScriptsVersion["version.sh"]:::pipeline
+        ScriptsDeploy["cloud_deploy.sh"]:::pipeline
+        DockerHub["Docker Hub"]:::pipeline
+    end
+
+    %% Infra Configuration
+    subgraph "Infrastructure Configuration"
+        DockerfileCfg["Dockerfile"]:::pipeline
+        DockerfileProd["Dockerfile.production"]:::pipeline
+        ComposeCfg["docker-compose.yml"]:::pipeline
+        DockerrunCfg["Dockerrun.aws.json"]:::pipeline
+        EBConfig[".ebextensions/single-instance.config"]:::pipeline
+    end
+
+    %% Frontend & Backend Code
+    subgraph "Application Code"
+        IndexHTML["index.html"]:::frontend
+        StyleCSS["style.css"]:::frontend
+        CriticalCSS["critical.css"]:::frontend
+        ScriptJS["script.js"]:::frontend
+        ServerJS["server.js"]:::infra
+        PackageJSON["package.json"]:::infra
+        PackageLock["package-lock.json"]:::infra
+    end
+
+    %% Relationships
+    Browser -->|GET static assets / API calls| CDN
+    CDN -->|SSL/TLS Termination & Cache| LB
+    LB -->|Forwards Traffic| EC2
+    EC2 -->|Runs Container| Container
+    Container -->|Serves HTML/CSS/JS & API JSON| CDN
+    Container -->|In-memory session recovery| Container
+
+    %% Build Pipeline Flow
+    ScriptsBuild --> IndexHTML
+    ScriptsBuild --> StyleCSS
+    ScriptsBuild --> CriticalCSS
+    ScriptsBuild --> ScriptJS
+    ScriptsVersion -->|bump version| PackageJSON
+    ScriptsVersion --> PackageLock
+    ScriptsDeploy --> DockerHub
+    DockerHub -->|Deploy Image| LB
+
+    %% Infra Config usage
+    DockerfileCfg --> Container
+    DockerfileProd --> Container
+    ComposeCfg --> Container
+    DockerrunCfg --> EC2
+    EBConfig --> LB
+
+    %% Click Events
+    click DockerfileCfg "https://github.com/cohuk/sudoku/tree/main/Dockerfile"
+    click DockerfileProd "https://github.com/cohuk/sudoku/blob/main/Dockerfile.production"
+    click ComposeCfg "https://github.com/cohuk/sudoku/blob/main/docker-compose.yml"
+    click DockerrunCfg "https://github.com/cohuk/sudoku/blob/main/Dockerrun.aws.json"
+    click EBConfig "https://github.com/cohuk/sudoku/blob/main/.ebextensions/single-instance.config"
+    click ScriptsBuild "https://github.com/cohuk/sudoku/blob/main/scripts/build.js"
+    click ScriptsVersion "https://github.com/cohuk/sudoku/blob/main/scripts/version.sh"
+    click ScriptsDeploy "https://github.com/cohuk/sudoku/blob/main/scripts/cloud_deploy.sh"
+    click ServerJS "https://github.com/cohuk/sudoku/blob/main/backend/server.js"
+    click PackageJSON "https://github.com/cohuk/sudoku/blob/main/package.json"
+    click PackageLock "https://github.com/cohuk/sudoku/blob/main/package-lock.json"
+    click IndexHTML "https://github.com/cohuk/sudoku/blob/main/frontend/index.html"
+    click StyleCSS "https://github.com/cohuk/sudoku/blob/main/frontend/style.css"
+    click CriticalCSS "https://github.com/cohuk/sudoku/blob/main/frontend/critical.css"
+    click ScriptJS "https://github.com/cohuk/sudoku/blob/main/frontend/script.js"
+
+    %% Styles
+    classDef frontend fill:#85C1E9,stroke:#1B4F72,color:#1B2631
+    classDef infra fill:#82E0AA,stroke:#1D8348,color:#145A32
+    classDef pipeline fill:#F7DC6F,stroke:#B7950B,color:#7E5109
+```
+
 ### Local Development
 
 1. **Clone the repository**
